@@ -1,0 +1,887 @@
+/* ================== 基本設定 ================== */
+
+
+:root {
+  --font-mood: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "Noto Serif TC", "Times New Roman", serif;
+  --font-script: "Shrikhand", cursive;
+
+
+  --color-bg-dark: #050910;
+  --color-accent-yellow: #f7d25c;
+  --color-accent-pink: #f25bb6;
+  --color-accent-blue: #4ab0ff;
+  --color-text-main: #ffffff;
+}
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-main);
+  font-family: var(--font-body);
+}
+
+
+/* ================== HERO ================== */
+
+
+.hero {
+  position: sticky;
+  top: 0;           /* 讓它黏在螢幕最頂端 */
+  z-index: 1;       /* 圖層設定在最底層 */
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(14px) brightness(0.65);
+  animation: heroFocusIn 1.8s ease-out forwards;
+  animation-delay: 0.8s;
+}
+
+
+@keyframes heroFocusIn {
+  0%   { filter: blur(14px) brightness(0.65); }
+  60%  { filter: blur(6px)  brightness(0.8);  }
+  100% { filter: blur(0px)  brightness(1);    }
+}
+
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0,0,0,0.1), rgba(0,0,0,0.65));
+}
+
+
+/* ── 進場 LOGO 遮罩 ── */
+.intro-logo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050910;
+  animation: introFadeOut 1.6s ease-out forwards;
+  pointer-events: none;
+}
+
+
+.intro-logo-overlay img {
+  width: 40vw;
+  max-width: 520px;
+  height: auto;
+  filter: drop-shadow(0 0 18px rgba(255,255,255,0.9));
+  animation: introLogoZoom 1.6s ease-out forwards;
+}
+
+
+@keyframes introFadeOut {
+  0%   { opacity: 1; }
+  65%  { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+
+@keyframes introLogoZoom {
+  0%   { transform: scale(1.05); opacity: 0; }
+  25%  { transform: scale(1.15); opacity: 1; }
+  65%  { transform: scale(1.0);  opacity: 1; }
+  100% { transform: scale(0.9);  opacity: 0; }
+}
+
+
+/* ================== 頂端導覽 ================== */
+
+
+.top-nav {
+  position: absolute;
+  top: 24px;
+  left: 40px;
+  right: 40px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-body);
+}
+
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+
+.logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+
+.top-links a {
+  margin-left: 24px;
+  font-size: 15px;
+  text-decoration: none;
+  color: #f5f5f5;
+  position: relative;
+}
+
+
+.top-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background:#aaa660;
+  transition: width 0.25s ease;
+}
+
+
+.top-links a:hover::after {
+  width: 100%;
+}
+
+
+/* ================== 中央搜尋區 ================== */
+
+
+.mood-search {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 150px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+
+.site-title {
+  margin: 0 0 24px;
+  letter-spacing: 0;
+}
+
+
+@keyframes logoDropIn {
+  0%   { opacity: 0; transform: scale(0.9);  }
+  40%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1);    }
+}
+
+
+@keyframes logoFlicker {
+  0%, 100% { opacity: 1;    filter: drop-shadow(0 0 8px  rgba(255,255,255,0.7)); }
+  8%        { opacity: 0.85; filter: drop-shadow(0 0 3px  rgba(255,255,255,0.4)); }
+  12%       { opacity: 1;    filter: drop-shadow(0 0 10px rgba(255,255,255,0.9)); }
+  18%       { opacity: 0.9;  filter: drop-shadow(0 0 2px  rgba(255,255,255,0.3)); }
+  25%       { opacity: 1;    filter: drop-shadow(0 0 9px  rgba(255,255,255,0.8)); }
+  60%       { opacity: 0.9;  filter: drop-shadow(0 0 6px  rgba(255,255,255,0.6)); }
+}
+
+
+.site-title img {
+  height: 120px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  animation: logoDropIn 1.8s ease-out forwards 1.0s,
+             logoFlicker 3.0s ease-in-out infinite 2.0s;
+}
+
+
+.search-bar {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  border-radius: 24px;
+  background-color: rgba(5,9,16,0.78);
+}
+
+
+#mood-input {
+  width: 100%;
+  padding: 14px 40px 14px 18px;
+  border-radius: 24px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+
+#mood-input:hover,
+#mood-input:focus,
+#mood-input:active {
+  background-color: transparent;
+}
+
+
+#mood-input:-webkit-autofill,
+#mood-input:-webkit-autofill:hover,
+#mood-input:-webkit-autofill:focus,
+#mood-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+}
+
+
+input[type="text"] {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+
+.clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.clear-btn:hover {
+  background: rgba(255,255,255,0.16);
+  color: #fff;
+}
+
+
+#search-btn {
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: #546a7b;
+  color: #102a43;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4);
+}
+
+
+#search-btn:hover  { filter: brightness(1.05); }
+#search-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+
+
+/* ================== 心情標籤 ================== */
+
+
+.mood-tags {
+  max-width: 780px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 12px;
+  font-family: var(--font-mood);
+  margin-top: 8px;
+}
+
+
+.tag {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.5);
+  background-color: rgba(5,9,16,0.75);
+  color: #f7f7f7;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: floaty 3s ease-in-out infinite;
+}
+
+
+@keyframes floaty {
+  0%   { transform: translateY(0);    }
+  50%  { transform: translateY(-4px); }
+  100% { transform: translateY(0);    }
+}
+
+
+.tag:hover {
+  background-color: #ffffff;
+  color: #111;
+  transform: translateY(-6px) scale(1.03);
+}
+
+
+/* ================== FAVORITES 區塊 ================== */
+
+
+.block {
+  padding: 80px 24px;
+  background-color: #090e16;
+  position: relative;        /* 加上相對定位以啟動 z-index */
+  z-index: 10;               /* 設定比 hero 高的圖層，這樣才能蓋過去 */
+  box-shadow: 0 -15px 30px rgba(0, 0, 0, 0.6); /* (選擇性) 加上頂部陰影，滑上來時更有層次感 */
+}
+
+
+.favorites {
+  position: relative;
+  overflow: hidden;
+}
+
+
+.favorites::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(242,91,182,0.5),
+    rgba(247,210,92,0.4),
+    transparent
+  );
+  opacity: 0.7;
+}
+
+
+.favorites:nth-of-type(odd)  { background-color: #090e16; }
+.favorites:nth-of-type(even) { background-color: #050910; }
+
+
+.favorites-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1.6fr;
+  gap: 32px;
+  align-items: center;
+  position: relative;
+}
+
+
+.favorites-poster-float {
+  position: absolute;
+  top: 50%;
+  transform: translate(-40%, -50%);
+  width: 140px;
+  height: 215px;
+  border-radius: 18px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+
+.favorites-poster-float.has-image {
+  opacity: 1;
+  transform: translate(-33%, -50%);
+}
+
+
+#festival-poster,
+#yearly-poster {
+  left: 32%;
+}
+
+
+.favorites-text {
+  font-family: var(--font-body);
+  padding-bottom: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+
+.favorites-title {
+  margin: 0 0 4px;
+  font-size: 36px;
+  color: #aaa660;
+  letter-spacing: 0.12em;
+  position: relative;
+}
+
+
+.favorites-title .title-dot {
+  position: relative;
+  display: inline-block;
+  padding-right: 16px;
+}
+
+
+.favorites-title .title-dot::before {
+  content: "";
+  position: absolute;
+  inset: -4px -8px;
+  border-radius: 999px;
+  background: radial-gradient(circle at center, rgba(247,210,92,0.35), transparent 60%);
+  opacity: 0.0;
+  pointer-events: none;
+  filter: blur(3px);
+  animation: softGlow 3.2s ease-in-out infinite;
+}
+
+
+.favorites-title .title-dot::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f7d25c;
+  box-shadow: 0 0 10px rgba(247,210,92,0.9);
+  animation: twinkle 2.4s ease-in-out infinite;
+}
+
+
+@keyframes softGlow {
+  0%, 100% { opacity: 0.0;  }
+  40%       { opacity: 0.45; }
+  70%       { opacity: 0.15; }
+}
+
+
+@keyframes twinkle {
+  0%, 100% { transform: translateY(-50%) scale(0.8); opacity: 0.7; }
+  50%       { transform: translateY(-50%) scale(1.1); opacity: 1;   }
+}
+
+
+.favorites-year {
+  margin: 0 0 8px;
+  font-family: var(--font-script);
+  font-size: 44px;
+  color: #9d3c24;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+
+.favorites-year.animate-in {
+  animation: yearFloatUp 1.2s ease-out forwards;
+}
+
+
+@keyframes yearFloatUp {
+  0%   { opacity: 0; transform: translateY(26px); }
+  60%  { opacity: 1; transform: translateY(0);    }
+  100% { opacity: 1; transform: translateY(0);    }
+}
+
+
+.favorites-sub {
+  position: relative;
+  margin: 12px 0 0;
+  font-size: 22px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #aaa660;
+  font-family: var(--font-body);
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+
+.favorites-sub span.typing-text {
+  display: inline-block;
+}
+
+
+.favorites-festival .favorites-title { color: #aaa660; }
+.favorites-yearly  .favorites-title  { color: #aaa660; }
+/* ── 卡片外框 ── */
+.favorites-card {
+  position: relative;
+  min-height: 220px;
+  border-radius: 20px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #0c0905;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(16px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07),
+    0 18px 40px rgba(0,0,0,0.8);
+}
+
+
+.favorites-card::before {
+  content: "";
+  position: absolute;
+  width: 75%;
+  height: 80%;
+  top: -20%;
+  right: -15%;
+  border-radius: 50%;
+  filter: blur(50px);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(165,58,8,0.82) 0%, rgba(110,30,5,0.45) 45%, transparent 72%);
+  animation: smokeA 14s ease-in-out infinite alternate;
+}
+
+
+.favorites-card::after {
+  content: "";
+  position: absolute;
+  width: 65%;
+  height: 70%;
+  bottom: -20%;
+  left: -10%;
+  border-radius: 50%;
+  filter: blur(50px);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(130,42,6,0.7) 0%, rgba(80,20,4,0.4) 50%, transparent 72%);
+  animation: smokeB 18s ease-in-out infinite alternate;
+}
+
+
+@keyframes smokeA {
+  0%   { transform: translate(0%,  0%)  scale(1);    }
+  30%  { transform: translate(-8%, 6%)  scale(1.08); }
+  60%  { transform: translate(5%, -4%)  scale(0.95); }
+  100% { transform: translate(-4%, 10%) scale(1.05); }
+}
+
+
+@keyframes smokeB {
+  0%   { transform: translate(0%,  0%)  scale(1);    }
+  40%  { transform: translate(10%,-8%)  scale(1.1);  }
+  70%  { transform: translate(-5%, 5%)  scale(0.92); }
+  100% { transform: translate(8%, -6%)  scale(1.06); }
+}
+
+
+.favorites-card.animate-in {
+  animation: cardFadeUp 0.9s ease-out forwards;
+}
+
+
+@keyframes cardFadeUp {
+  0%   { opacity: 0; transform: translateY(24px); }
+  60%  { opacity: 1; transform: translateY(0);    }
+  100% { opacity: 1; transform: translateY(0);    }
+}
+
+
+.fav-smoke {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+
+.fav-smoke::before {
+  content: "";
+  position: absolute;
+  width: 50%;
+  height: 55%;
+  top: 20%;
+  left: 25%;
+  border-radius: 50%;
+  filter: blur(40px);
+  background: radial-gradient(circle, rgba(95,28,5,0.4) 0%, transparent 70%);
+  animation: smokeC 10s ease-in-out infinite alternate;
+}
+
+
+@keyframes smokeC {
+  0%   { transform: translate(0,0)      scale(1);   }
+  50%  { transform: translate(10%, 8%)  scale(1.1); }
+  100% { transform: translate(-8%,-5%)  scale(0.9); }
+}
+
+
+.fav-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+
+.favorites-list {
+  position: relative;
+  z-index: 3;
+  color: #cda415;
+  font-family: var(--font-body);
+  width: 100%;
+}
+
+
+.favorites-list ul {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+
+.favorites-list li {
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+
+.favorites-list .more-btn-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+
+/* ================== ✅ 修改後的 MORE 按鈕 CSS (吃角子老虎機效果) ================== */
+
+.more-btn {
+  position: relative;
+  z-index: 4;
+  /* 按鈕設定固定寬高：寬度 130px，高度 40px */
+  width: 130px;
+  height: 40px; 
+  padding: 0; /* 移除原本的 padding，避免干擾 */
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: #9d3c24; 
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  /* 核心：隱藏框框外的文字，形成遮罩 */
+  overflow: hidden; 
+  
+  /* 按鈕本身使用 flex 水平置中內部的滾動容器 */
+  display: flex;
+  justify-content: center;
+}
+
+/* Hover 時讓外框稍微亮一點 */
+.more-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.more-btn:active {
+  transform: translateY(2px);
+}
+
+/* --- 內部滾動的容器 --- */
+.btn-marquee {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  animation: scrollDownLoop 4s cubic-bezier(0.85, 0, 0.15, 1) infinite;
+  
+  /* 垂直方向佔滿按鈕 */
+  height: 100%;
+}
+
+/* --- 每一格文字/箭頭的設定 --- */
+.btn-marquee span {
+  display: flex;
+  align-items: center; /* span 內部的文字/箭頭水平置中 */
+  justify-content: center; /* span 內部的文字/箭頭垂直置中 (flex 方法) */
+  height: 40px; /* 必須與 .more-btn 按鈕高度一致 */
+  flex-shrink: 0;
+  width: 100%;
+  
+  /* ✅ 修復垂直置中的關鍵：設定行高與高度一致 (老但有效的技術) */
+  line-height: 40px;
+}
+
+.btn-marquee .arrow {
+  font-size: 1.2rem; 
+  /* 1. 將字距歸零，消除右側的隱形空白 */
+  letter-spacing: 0; 
+  
+  /* 2. 如果字體本身設計還是有點微偏，可以用 padding-left 稍微往右推一點 (視情況微調，通常設 2px~4px) */
+  padding-left: 2px; 
+  
+  /* (把之前錯誤的 padding-right 跟 transform 都刪掉) */
+}
+
+/* --- 由上至下的循環動畫 --- */
+@keyframes scrollDownLoop {
+  /* 停留在頂部 (顯示 MORE) */
+  0%, 35% { transform: translateY(0px); }
+  /* 俐落往下拉一格 (顯示 →) */
+  45%, 80% { transform: translateY(-40px); }
+  /* 再往下拉一格 (顯示底部的 MORE)，完成無縫循環 */
+  90%, 100% { transform: translateY(-80px); }
+}
+
+/* ================== RWD ================== */
+
+
+@media (max-width: 1024px) {
+  .site-title { font-size: 42px; }
+  .favorites-inner { grid-template-columns: 1fr; }
+}
+
+
+@media (max-width: 768px) {
+  .top-nav { left: 16px; right: 16px; }
+  .site-title { font-size: 32px; }
+  .search-bar { flex-direction: column; align-items: stretch; }
+  .mood-tags { justify-content: flex-start; }
+}
+/* ── Scroll Reveal 動畫 ── */
+.favorites {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+
+.favorites.section-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+.favorites.section-visible .favorites-text {
+  animation: slideUp 0.8s ease 0.15s both;
+}
+
+
+.favorites.section-visible .favorites-card.animate-in {
+  animation: slideUp 0.8s ease 0.35s both;
+}
+
+
+@keyframes slideUp {
+  0%   { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+/* ================== 底部滾動提示鼠標 ================== */
+
+/* ================== 底部滾動提示鼠標 (高質感重製版) ================== */
+
+/* 隱形的感應區 */
+.scroll-hover-zone {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25vh; 
+  z-index: 10;
+  cursor: none; 
+}
+
+/* 自訂鼠標圓圈與箭頭 */
+/* 自訂鼠標圓圈與箭頭 */
+.scroll-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 44px;  
+  height: 44px;
+  margin-left: -22px; 
+  margin-top: -22px;
+  border-radius: 50% !important; 
+  overflow: hidden; 
+  
+  background: rgba(10, 10, 15, 0.4); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15); 
+  
+  /* ✅ 高質感微發光：保留原本的黑色立體陰影，再疊加一層微弱的主色（黃色）光暈 */
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.5), 
+    0 0 14px rgba(247, 210, 92, 0.15); 
+  
+  color: #f7d25c; 
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; 
+  z-index: 9999;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+.scroll-cursor.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 箭頭動畫設定 */
+.scroll-cursor svg {
+  width: 18px; /* 箭頭也跟著縮小 */
+  height: 18px;
+  filter: drop-shadow(0 0 3px rgba(247, 210, 92, 0.4));
+  animation: bounceDown 2s infinite ease-in-out; /* 放慢動畫速度，更顯優雅 */
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(-2px); }
+  50%      { transform: translateY(3px); }
+}

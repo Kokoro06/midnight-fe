@@ -1,39 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import GrainCanvas from '../components/GrainCanvas'
+import { getMoviesByTags, posterUrl, type Movie } from '../lib/directus'
 import './Result.css'
 
-// TODO(#5): replace local mock with `import { getMoviesByTags, Movie } from '../lib/directus'`
-interface Tag {
-  id: string
-  name: string
-  category: string
-}
-interface Movie {
-  id: string
-  title: string
-  original_title: string
-  year: number
-  poster: string
-  tags: Tag[]
-}
-async function getMoviesByTags(tags: string[]): Promise<Movie[]> {
-  await new Promise((r) => setTimeout(r, 600))
-  return [
-    {
-      id: 'mock-1',
-      title: '《我家的事》',
-      original_title: 'Mountains of Home',
-      year: 2024,
-      poster: 'placeholder',
-      tags: tags.map((name, i) => ({ id: `t${i}`, name, category: 'mood' })),
-    },
-  ]
-}
-
-const DIRECTUS_URL = import.meta.env.VITE_DIRECTUS_URL ?? 'http://localhost:8055'
-const posterUrl = (uuid: string) =>
-  `${DIRECTUS_URL}/assets/${uuid}?width=320&quality=80&format=webp`
 const POSTER_FALLBACK = 'img/poster1.jpg'
 
 interface CardData {

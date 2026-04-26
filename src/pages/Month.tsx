@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import TopNav from '../components/TopNav'
 import './Month.css'
 
 interface MonthData {
@@ -30,10 +30,14 @@ const MONTHS: MonthData[] = [
 export default function Month() {
   const [current, setCurrent] = useState<MonthData>(MONTHS[0])
   const [detailed, setDetailed] = useState<boolean>(false)
+  const [isPaused, setIsPaused] = useState<boolean>(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
   const autoScrollRef = useRef<boolean>(true)
+  const isPausedRef = useRef<boolean>(false)
   const rafRef = useRef<number | null>(null)
+
+  useEffect(() => { document.title = '月份推薦 | Midnight Moodvie' }, [])
 
   useEffect(() => {
     const scrollArea = scrollAreaRef.current
@@ -78,26 +82,39 @@ export default function Month() {
   }
 
   const handleLeave = () => {
-    autoScrollRef.current = true
+    if (!isPausedRef.current) autoScrollRef.current = true
   }
 
   const handleClick = (m: MonthData) => {
+    autoScrollRef.current = false
     setCurrent(m)
     setDetailed(true)
+  }
+
+  const togglePause = () => {
+    const newPaused = !isPausedRef.current
+    isPausedRef.current = newPaused
+    autoScrollRef.current = !newPaused
+    setIsPaused(newPaused)
+  }
+
+  const currentIdx = MONTHS.findIndex(m => m.title === current.title)
+
+  const goPrev = () => {
+    const idx = (currentIdx - 1 + MONTHS.length) % MONTHS.length
+    setCurrent(MONTHS[idx])
+  }
+
+  const goNext = () => {
+    const idx = (currentIdx + 1) % MONTHS.length
+    setCurrent(MONTHS[idx])
   }
 
   const allCards = [...MONTHS, ...MONTHS]
 
   return (
     <div className={`month-page${detailed ? ' detailed-mode' : ''}`}>
-      <div className="logo-area">
-        <Link to="/" className="logo-link">
-          <div className="logo-mask">
-            <img src="img/mm-logo-w.svg" alt="Logo" className="logo-img" />
-            <span className="logo-text">回首頁</span>
-          </div>
-        </Link>
-      </div>
+      <TopNav />
 
       <div className="month-container">
         <div className="left-section">
@@ -113,7 +130,14 @@ export default function Month() {
           </div>
 
           <div className="info-panel" style={{ right: detailed ? '40px' : '-60%', opacity: detailed ? 1 : 0 }}>
-            <button className="close-btn" onClick={() => setDetailed(false)}>×</button>
+            <button className="close-btn" onClick={() => {
+            setDetailed(false)
+            if (!isPausedRef.current) autoScrollRef.current = true
+          }}>×</button>
+            <div className="info-nav">
+              <button className="info-nav-btn" onClick={goPrev}>← 上一月</button>
+              <button className="info-nav-btn" onClick={goNext}>下一月 →</button>
+            </div>
             <p className="info-meta">{current.meta}</p>
             <div className="mood-tags">
               {current.tags.split(',').map((t) => <span key={t}>{t}</span>)}
@@ -142,6 +166,10 @@ export default function Month() {
           </div>
         </div>
       </div>
+
+      <button className="scroll-pause-btn" onClick={togglePause} aria-label={isPaused ? '繼續捲動' : '暫停捲動'}>
+        {isPaused ? '▶' : '⏸'}
+      </button>
 
       <div className="side-instruction">
         <div className="text-mask">

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { movieDB, Movie } from '../data/movieDB'
+import TopNav from '../components/TopNav'
+import { getMoviesByTags, posterUrl, type Movie } from '../lib/directus'
 import './Effect.css'
 
 interface MovieItemProps {
@@ -26,7 +27,7 @@ function MovieItem({ movie, index }: MovieItemProps) {
       <div className="movie-content">
         <div className="img-wrap">
           <img
-            src={movie.img}
+            src={posterUrl(movie.poster)}
             alt={movie.title}
             onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x450/111/444?text=Movie+Visual' }}
           />
@@ -34,7 +35,7 @@ function MovieItem({ movie, index }: MovieItemProps) {
         <div className="info-wrap">
           <span className="movie-num">0{index + 1}</span>
           <h2 className="movie-name">{movie.title}</h2>
-          <p className="movie-tags">{movie.tags.join(' / ')}</p>
+          <p className="movie-tags">{movie.tags.map(t => t.name).join(' / ')}</p>
         </div>
       </div>
     </div>
@@ -47,19 +48,40 @@ export default function Effect() {
   const userMood = params.get('mood') ?? ''
   const keywords = userMood.split(/\s+/).filter((k) => k.length > 0)
 
-  const filtered = movieDB.filter((movie) =>
-    keywords.length === 0 || keywords.some((key) => movie.tags.includes(key))
-  )
+  const [movies, setMovies] = useState<Movie[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
+
+  useEffect(() => {
+    document.title = '為你推薦 | Midnight Moodvie'
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(false)
+    getMoviesByTags(keywords)
+      .then((result) => {
+        if (cancelled) return
+        setMovies(result)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setError(true)
+        setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [userMood, reloadKey])
+
+  const contextLine = !loading && !error && movies.length > 0 && keywords.length > 0
+    ? `為你選了 ${movies.length} 部 ${keywords.map(k => `#${k}`).join(' ')} 的電影`
+    : ''
 
   return (
     <div className="effect-page">
-      <button className="back-home" onClick={() => navigate('/')}>
-        <div className="btn-marquee">
-          <span>BACK TO HOME</span>
-          <span className="arrow">→</span>
-          <span>BACK TO HOME</span>
-        </div>
-      </button>
+      <TopNav />
 
       <section className="header-section">
         <h1 className="main-title">
@@ -68,12 +90,26 @@ export default function Effect() {
             <span className="text-line focus-1">關盞燈，</span>
             <span className="text-line focus-2">開始看電影。</span>
           </div>
+          {contextLine && <span className="context-line">{contextLine}</span>}
         </h1>
       </section>
 
       <div className="project-list">
-        {filtered.map((movie, i) => (
-          <MovieItem key={movie.title + i} movie={movie} index={i} />
+        {loading && <div className="effect-loading">尋找今晚的電影⋯</div>}
+        {!loading && error && (
+          <div className="effect-empty">
+            <p>無法連線，請稍後再試</p>
+            <button className="effect-retry-btn" onClick={() => setReloadKey(k => k + 1)}>重試</button>
+          </div>
+        )}
+        {!loading && !error && movies.length === 0 && keywords.length > 0 && (
+          <div className="effect-empty">
+            <p>找不到符合 {keywords.map(k => `#${k}`).join(' ')} 的電影</p>
+            <button className="effect-retry-btn" onClick={() => navigate('/')}>換個關鍵字</button>
+          </div>
+        )}
+        {!loading && !error && movies.map((movie, i) => (
+          <MovieItem key={movie.id} movie={movie} index={i} />
         ))}
       </div>
     </div>

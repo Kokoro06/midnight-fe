@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import GrainCanvas from '../components/GrainCanvas'
+import TopNav from '../components/TopNav'
 import { getMoviesByTags, posterUrl, type Movie } from '../lib/directus'
 import './Result.css'
 
@@ -51,6 +52,8 @@ export default function Result() {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
+  useEffect(() => { document.title = `${data.title} | Midnight Moodvie` }, [data.title])
+
   useEffect(() => {
     let cancelled = false
     setLoading(true)
@@ -75,12 +78,10 @@ export default function Result() {
     <div className="result-page">
       <video className="result-bg-video" src="ir.mp4" autoPlay muted loop playsInline />
 
+      <TopNav />
+
       <div className="result-wrap">
         <div>
-          <div className="result-logo">
-            <img src="img/mm-logo-w.svg" alt="Midnight Moodvie" />
-          </div>
-
           <article className="card">
             <div className="card-bg" />
             <div className="card-smoke" />
@@ -93,7 +94,9 @@ export default function Result() {
 
               <div className="card-bottom">
                 <div className="card-tags">
-                  {data.tags.map((t) => <span key={t}>{t}</span>)}
+                  {data.tags.map((t) => (
+                    <Link key={t} to={`/?tag=${encodeURIComponent(t)}`}>{t}</Link>
+                  ))}
                 </div>
                 {movie && (
                   <div className="card-recommendation">

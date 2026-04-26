@@ -31,4 +31,5 @@ directus/extensions
 *.njsproj
 *.sln
 *.sw?
-/docs
+test-results/*
+docs/* 

@@ -107,60 +107,13 @@ body {
 }
 
 
-/* ================== 頂端導覽 ================== */
-
-
-.top-nav {
-  position: absolute;
-  top: 24px;
-  left: 40px;
-  right: 40px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: var(--font-body);
+.search-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.05em;
+  text-align: center;
 }
-
-
-.logo {
-  display: flex;
-  align-items: center;
-}
-
-
-.logo img {
-  height: 32px;
-  width: auto;
-  display: block;
-}
-
-
-.top-links a {
-  margin-left: 24px;
-  font-size: 15px;
-  text-decoration: none;
-  color: #f5f5f5;
-  position: relative;
-}
-
-
-.top-links a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0;
-  height: 2px;
-  background:#aaa660;
-  transition: width 0.25s ease;
-}
-
-
-.top-links a:hover::after {
-  width: 100%;
-}
-
 
 /* ================== 中央搜尋區 ================== */
 
@@ -786,7 +739,6 @@ input[type="text"] {
 
 
 @media (max-width: 768px) {
-  .top-nav { left: 16px; right: 16px; }
   .site-title { font-size: 32px; }
   .search-bar { flex-direction: column; align-items: stretch; }
   .mood-tags { justify-content: flex-start; }

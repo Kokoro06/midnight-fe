@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import TopNav from '../components/TopNav'
 import './Festival.css'
 
 type FestivalId = 'goldenHorse' | 'taipei' | 'kaohsiung'
@@ -77,6 +77,68 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
   },
 }
 
+const FESTIVAL_TAB_ITEMS: { id: FestivalId; label: string }[] = [
+  { id: 'goldenHorse', label: '金馬影展' },
+  { id: 'taipei', label: '台北電影節' },
+  { id: 'kaohsiung', label: '高雄電影節' },
+]
+
+interface FestivalSubnavProps {
+  activeId: FestivalId
+  fading: boolean
+  onChange: (id: FestivalId) => void
+}
+
+function FestivalSubnav({ activeId, fading, onChange }: FestivalSubnavProps) {
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
+
+  const focusAt = (idx: number) => {
+    const el = tabRefs.current[idx]
+    el?.focus()
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, currentIdx: number) => {
+    const last = FESTIVAL_TAB_ITEMS.length - 1
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      focusAt(currentIdx === last ? 0 : currentIdx + 1)
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      focusAt(currentIdx === 0 ? last : currentIdx - 1)
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      focusAt(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      focusAt(last)
+    }
+  }
+
+  return (
+    <div className="festival-subnav" role="tablist" aria-label="影展切換">
+      {FESTIVAL_TAB_ITEMS.map((item, idx) => {
+        const isActive = activeId === item.id
+        return (
+          <button
+            key={item.id}
+            ref={(el) => { tabRefs.current[idx] = el }}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
+            disabled={fading}
+            className={`festival-subnav-tab${isActive ? ' is-active' : ''}`}
+            onClick={() => onChange(item.id)}
+            onKeyDown={(e) => handleKeyDown(e, idx)}
+          >
+            {item.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function SubCard({ sub, themeColor, delay }: SubCardProps) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -102,6 +164,12 @@ function SubCard({ sub, themeColor, delay }: SubCardProps) {
         <img src={sub.img} onError={(e) => { (e.target as HTMLImageElement).src = fallback }} alt={sub.title} />
       </div>
       <p className="sub-card-desc">{sub.desc}</p>
+      <button
+        className="sub-card-cta"
+        onClick={() => document.querySelector('.hero-section')?.scrollIntoView({ behavior: 'smooth' })}
+      >
+        關於此影展 ↑
+      </button>
     </div>
   )
 }
@@ -113,9 +181,15 @@ export default function Festival() {
 
   const data = festivalData[activeId]
 
+  useEffect(() => { document.title = '影展資訊 | Midnight Moodvie' }, [])
+
   useEffect(() => {
     document.documentElement.style.setProperty('--accent-color', data.themeColor)
   }, [data.themeColor])
+
+  useEffect(() => {
+    return () => { document.documentElement.style.removeProperty('--accent-color') }
+  }, [])
 
   const switchFestival = (id: FestivalId) => {
     if (id === activeId) return
@@ -150,25 +224,7 @@ export default function Festival() {
 
   return (
     <div className="festival-page">
-      <nav className="top-nav">
-        <Link to="/" className="logo-link">
-          <div className="logo-mask">
-            <img src="img/mm-logo-w.svg" alt="午夜心放映" className="logo-img" />
-            <span className="logo-text">回首頁</span>
-          </div>
-        </Link>
-        <div className="nav-links">
-          {(Object.keys(festivalData) as FestivalId[]).map((id) => (
-            <button
-              key={id}
-              className={`nav-btn${activeId === id ? ' active' : ''}`}
-              onClick={() => switchFestival(id)}
-            >
-              {id === 'goldenHorse' ? '金馬影展' : id === 'taipei' ? '台北電影節' : '高雄電影節'}
-            </button>
-          ))}
-        </div>
-      </nav>
+      <TopNav subNav={<FestivalSubnav activeId={activeId} fading={fading} onChange={switchFestival} />} />
 
       <main id="content-wrapper" className={fading ? 'fade-out' : ''}>
         <section className="hero-section">

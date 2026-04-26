@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GrainCanvas from '../components/GrainCanvas'
+import TopNav from '../components/TopNav'
 import './Quiz.css'
 
 type OptionType = 'A' | 'B' | 'C'
@@ -95,6 +96,7 @@ export default function Quiz() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    document.title = '心情測驗 | Midnight Moodvie'
     timerRef.current = setTimeout(() => {
       typeText('點根線香，放鬆一下', setTitleText)
     }, 100)
@@ -111,27 +113,29 @@ export default function Quiz() {
   }, [step])
 
   const chooseOption = (type: OptionType) => {
-    if (leaving) return
+    if (leaving || chosenOption !== null) return
     setChosenOption(type)
-    setLeaving(true)
 
     setTimeout(() => {
-      const newCounts: Counts = { ...counts, [type]: counts[type] + 1 }
-      setCounts(newCounts)
-      const nextStep = step + 1
+      setLeaving(true)
+      setTimeout(() => {
+        const newCounts: Counts = { ...counts, [type]: counts[type] + 1 }
+        setCounts(newCounts)
+        const nextStep = step + 1
 
-      if (nextStep > 3) {
-        let best: OptionType = 'A'
-        if (newCounts.B > newCounts[best]) best = 'B'
-        if (newCounts.C > newCounts[best]) best = 'C'
-        const key: ResultKey = best === 'A' ? 'healing' : best === 'B' ? 'cult' : 'thrill'
-        setTimeout(() => navigate(`/result?type=${key}`), 450)
-      } else {
-        setStep(nextStep)
-        setLeaving(false)
-        setChosenOption(null)
-      }
-    }, 350)
+        if (nextStep > 3) {
+          let best: OptionType = 'A'
+          if (newCounts.B > newCounts[best]) best = 'B'
+          if (newCounts.C > newCounts[best]) best = 'C'
+          const key: ResultKey = best === 'A' ? 'healing' : best === 'B' ? 'cult' : 'thrill'
+          setTimeout(() => navigate(`/result?type=${key}`), 450)
+        } else {
+          setStep(nextStep)
+          setLeaving(false)
+          setChosenOption(null)
+        }
+      }, 350)
+    }, 200)
   }
 
   const sceneClass = (s: number) => {
@@ -152,6 +156,7 @@ export default function Quiz() {
             </div>
             <h1 className="scene-title">{titleText}</h1>
             <p className="scene-subtitle">你是哪款！電影地縛靈 👻</p>
+            <p className="scene-preview">共 3 題，約需 1 分鐘</p>
             <div className="quiz-divider" style={{ marginBottom: '32px' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <button
@@ -167,9 +172,15 @@ export default function Quiz() {
         </QuizCard>
       </section>
 
+      {step >= 1 && <TopNav />}
+
       {QUESTIONS.map((q) => (
         <section key={q.step} className={sceneClass(q.step)}>
           <QuizCard>
+            <div className="quiz-progress">
+              <span className="quiz-progress-step">{q.step} / 3</span>
+              <Link to="/" className="skip-link" style={{ marginTop: 0 }}>離開測驗</Link>
+            </div>
             <div className="quiz-divider" />
             <div className="scene-label">{q.label}</div>
             <h2 className="scene-question">{step === q.step ? questionText : ''}</h2>

@@ -32,9 +32,6 @@
   align-items: center;
 }
 
-.result-logo { text-align: left; margin-bottom: 24px; }
-.result-logo img { height: 48px; width: auto; }
-
 .card {
   position: relative;
   border-radius: 24px;
@@ -179,7 +176,18 @@
 }
 
 .card-tags { font-size: 12px; color: #c7cbe0; display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
-.card-tags span { display: inline-block; padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.4); background: rgba(5,9,16,0.8); }
+.card-tags span,
+.card-tags a {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(5,9,16,0.8);
+  text-decoration: none;
+  color: #c7cbe0;
+  transition: border-color 0.2s, color 0.2s;
+}
+.card-tags a:hover { border-color: rgba(247,210,92,0.6); color: #f7d25c; }
 
 .card-recommendation { display: flex; flex-direction: column; align-items: flex-end; text-align: right; flex-shrink: 0; }
 .rec-label { display: block; font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 0.15em; margin-bottom: 4px; }
@@ -324,7 +332,6 @@
 @media (max-width: 900px) {
   .result-wrap { grid-template-columns: 1fr; padding-top: 20px; }
   .result-wrap > div:first-child { display: flex; flex-direction: column; }
-  .result-logo { text-align: center; order: 2; margin-top: 40px; margin-bottom: 0; }
   .card { order: 1; }
 }
 

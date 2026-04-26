@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import GrainCanvas from '../components/GrainCanvas'
+import TopNav from '../components/TopNav'
 import './Home.css'
 
 interface Film {
@@ -85,14 +86,22 @@ function FavoritesCard({ films, posterId, onMore }: FavoritesCardProps) {
 
 export default function Home() {
   const navigate = useNavigate()
-  const [mood, setMood] = useState<string>('')
+  const [searchParams] = useSearchParams()
+  const [mood, setMood] = useState<string>(() => searchParams.get('tag') ?? '')
+  const [showOverlay, setShowOverlay] = useState<boolean>(true)
   const hoverZoneRef = useRef<HTMLDivElement>(null)
   const scrollCursorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    document.title = 'Midnight Moodvie — 今晚想看什麼？'
+    const t = setTimeout(() => setShowOverlay(false), 1700)
+    return () => clearTimeout(t)
+  }, [])
 
   const goResult = () => {
     const trimmed = mood.trim()
     if (!trimmed) return
-    navigate(`/effect?mood=${encodeURIComponent(trimmed)}`)
+    navigate(`/recommend?mood=${encodeURIComponent(trimmed)}`)
   }
 
   useEffect(() => {
@@ -205,27 +214,21 @@ export default function Home() {
 
   return (
     <>
-      <div className="intro-logo-overlay">
-        <img src="img/mm-logo-w.svg" alt="Midnight Moodvie" />
-      </div>
+      {showOverlay && (
+        <div className="intro-logo-overlay">
+          <img src="/img/mm-logo-w.svg" alt="Midnight Moodvie" />
+        </div>
+      )}
+
+      <TopNav hideUntilMs={1700} />
 
       <div className="hero">
         <video className="hero-bg" src="2.1.mp4" autoPlay muted loop playsInline />
         <div className="hero-overlay" />
 
-        <header className="top-nav">
-          <Link to="/" className="logo">
-            <img src="img/mm-logo-w.svg" alt="FEEL REEL" />
-          </Link>
-          <nav className="top-links">
-            <Link to="/festival">影展資訊</Link>
-            <Link to="/month">月份推薦</Link>
-          </nav>
-        </header>
-
         <main className="mood-search">
           <h1 className="site-title">
-            <img src="img/mm-logo-w.svg" alt="FEEL REEL" />
+            <img src="/img/mm-logo-w.svg" alt="FEEL REEL" />
           </h1>
 
           <div className="search-bar">
@@ -242,6 +245,7 @@ export default function Home() {
             </div>
             <button id="search-btn" onClick={goResult}>送出</button>
           </div>
+          <p className="search-hint">輸入心情關鍵字或點選下方標籤，快速找到今晚的電影</p>
 
           <div className="mood-tags">
             {MOOD_TAGS.map((tag) => (

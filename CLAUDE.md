@@ -108,23 +108,31 @@ npm run preview  # 預覽 build 結果
 - 現階段不使用 CSS Modules 的 `module.css` 命名，直接 `import './Page.css'`
 - 顏色、字體以直接值為主，尚未引入 design token 系統
 
-## 待辦（第一階段）
+# Sub-agent orchestration rules
 
-- [ ] 建立 Directus instance（self-hosted Docker 或 Directus Cloud）
-- [ ] 建立 `tags` collection 並匯入受控詞彙
-- [ ] 建立 `movies` collection，設定 M2M 關聯
-- [ ] 將現有 `movieDB.ts` 資料匯入 Directus，並上傳海報圖
-- [ ] 安裝 `@directus/sdk`，建立 `src/lib/directus.ts` client
-- [ ] Result 頁面改從 Directus 查詢電影（依標籤 filter）
-- [ ] 設定 Directus public role 權限（read-only movies + tags）
+This project uses three sub-agents: `ux-designer`, `frontend-designer`, `qa-engineer`.
 
-## 待辦（第二階段）
+## Invocation order (strict)
+For any new feature: ux-designer → frontend-designer → qa-engineer.
+Never invoke them in parallel. Never invoke two at the same time.
 
-- **動態標題**：用 `react-helmet` 為各頁面設定獨立 `<title>`
-- **Festival / Month 資料**：評估是否也搬進 Directus
+## Why sequential
+Parallel sub-agents that both call Edit/Write can deadlock if either edit is rejected
+(see claude-code issue #7091). Running them sequentially eliminates the race.
 
-## 注意事項
+## File ownership
+- ux-designer: read-only, no file edits
+- frontend-designer: source files only (src/, app/, components/, etc.)
+- qa-engineer: test files only (*.test.*, *.spec.*, __tests__/, e2e/)
 
-- `legacy/` 目錄為原始 HTML 備存，不要修改或參考其程式碼邏輯
-- `public/img/` 的圖片路徑在程式碼中以 `img/xxx.jpg` 表示（不加 `/public` 前綴）
-- Month 頁面的無限捲動用資料陣列複製兩份實現，非 CSS 方案
+If a sub-agent needs to edit outside its lane, it must STOP and ask the main agent.
+
+## Handoff protocol
+Each sub-agent's final message must contain a structured handoff section
+(`## HANDOFF`, `## DONE`, or `## QA REPORT`). The main agent reads that section
+and passes it verbatim into the next sub-agent's prompt.
+
+## When to escalate to user
+- Any time a sub-agent reports `Q:` open questions
+- Any time qa-engineer reports ❌ Failing
+- Before running destructive bash commands (rm, git reset, db migrations)

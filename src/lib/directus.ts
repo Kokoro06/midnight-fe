@@ -29,9 +29,13 @@ type DirectusMovie = {
 }
 
 export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
+  const query = tagNames.length > 0
+    ? { filter: { tags: { tags_id: { name: { _in: tagNames } } } } }
+    : {}
+
   const result = (await directus.request(
     readItems('movies', {
-      filter: { tags: { tags_id: { name: { _in: tagNames } } } },
+      ...query,
       fields: ['id', 'title', 'original_title', 'year', 'poster',
         'tags.tags_id.id', 'tags.tags_id.name', 'tags.tags_id.category'],
       limit: 50,

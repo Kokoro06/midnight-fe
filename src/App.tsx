@@ -5,6 +5,7 @@ import Month from './pages/Month'
 import Quiz from './pages/Quiz'
 import Effect from './pages/Effect'
 import Result from './pages/Result'
+import NotFound from './pages/NotFound'
 
 export default function App() {
   return (
@@ -14,8 +15,10 @@ export default function App() {
         <Route path="/festival" element={<Festival />} />
         <Route path="/month" element={<Month />} />
         <Route path="/quiz" element={<Quiz />} />
+        <Route path="/recommend" element={<Effect />} />
         <Route path="/effect" element={<Effect />} />
         <Route path="/result" element={<Result />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )

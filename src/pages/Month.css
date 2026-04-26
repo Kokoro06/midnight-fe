@@ -11,53 +11,6 @@
   height: 100vh;
 }
 
-.logo-area {
-  position: fixed;
-  top: 25px;
-  left: 25px;
-  z-index: 100;
-}
-
-.logo-link {
-  display: inline-block;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.logo-mask {
-  position: relative;
-  height: 30px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-
-.logo-img {
-  height: 100%;
-  width: auto;
-  transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-.logo-text {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  color: #F5F1E7;
-  font-size: 0.8rem;
-  letter-spacing: 4px;
-  font-family: 'Noto Serif TC', serif;
-  font-weight: 600;
-  white-space: nowrap;
-  transform: translateY(105%);
-  transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-.logo-link:hover .logo-img { transform: translateY(-105%); }
-.logo-link:hover .logo-text { transform: translateY(0); }
-
 .month-container {
   display: flex;
   width: 100vw;
@@ -189,6 +142,49 @@
 }
 
 .close-btn:hover { background: rgba(255,255,255,0.4); transform: rotate(90deg); color: #fff; }
+
+.info-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.info-nav-btn {
+  flex: 1;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px;
+  color: rgba(255,255,255,0.75);
+  font-family: 'Noto Serif TC', serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.info-nav-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.scroll-pause-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.3);
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.scroll-pause-btn:hover { background: rgba(0,0,0,0.55); color: #fff; }
 
 .month-page.detailed-mode .floating-title {
   top: 15%;

@@ -1,11 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { useGSAP } from '@gsap/react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import TopNav from '../components/TopNav'
 import './Festival.css'
-
-gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 type FestivalId = 'goldenHorse' | 'taipei' | 'kaohsiung'
 
@@ -29,6 +24,7 @@ interface SubCardProps {
   sub: SubFestival
   themeColor: string
   delay: number
+  index: number
 }
 
 const festivalData: Record<FestivalId, FestivalEntry> = {
@@ -43,9 +39,9 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
       '無論是亞洲電影的新聲音，還是國際名導的新作，都能在金馬影展中找到屬於電影藝術的深刻與自由。',
     ],
     subFestivals: [
-      { title: '奇幻影展', en: 'GOLDEN HORSE FANTASTIC FILM FESTIVAL', img: 'img/gh-fantastic.jpg', desc: '與你一起跨越想像邊界，從恐怖到動畫、從武俠到cult片，在奇幻中看見影像的可能。' },
-      { title: '經典影展', en: 'GOLDEN HORSE CLASSIC FILM FESTIVAL', img: 'img/gh-classic.jpg', desc: '回溯大銀幕上的經典，從默片到黃金時期喜劇，讓電影的時間厚度在當代重現。' },
-      { title: '國際影展', en: 'GOLDEN HORSE INTERNATIONAL FILM FESTIVAL', img: 'img/gh-international.jpg', desc: '一年一度華語電影與國際視野的交匯平台，觀賞世界、理解台灣、擁抱影像的多元對話。' },
+      { title: '奇幻影展', en: 'GOLDEN HORSE FANTASTIC FILM FESTIVAL', img: 'img/poster1.jpg', desc: '與你一起跨越想像邊界，從恐怖到動畫、從武俠到cult片，在奇幻中看見影像的可能。' },
+      { title: '經典影展', en: 'GOLDEN HORSE CLASSIC FILM FESTIVAL', img: 'img/poster2.jpg', desc: '回溯大銀幕上的經典，從默片到黃金時期喜劇，讓電影的時間厚度在當代重現。' },
+      { title: '國際影展', en: 'GOLDEN HORSE INTERNATIONAL FILM FESTIVAL', img: 'img/poster3.jpg', desc: '一年一度華語電影與國際視野的交匯平台，觀賞世界、理解台灣、擁抱影像的多元對話。' },
     ],
   },
   taipei: {
@@ -59,9 +55,9 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
       '影展充滿年輕活力，透過夏日觀影狂歡，持續為台北這座城市注入豐沛的文化動能。',
     ],
     subFestivals: [
-      { title: '國際新導演', en: 'INTERNATIONAL NEW TALENT', img: 'https://via.placeholder.com/600x600/111/4ab0ff?text=INT', desc: '挖掘全球具潛力的影像新銳，引領觀眾看見電影藝術的未來趨勢與大膽實驗。' },
-      { title: '台北電影獎', en: 'TAIPEI FILM AWARDS', img: 'https://via.placeholder.com/600x600/111/4ab0ff?text=TFA', desc: '專屬台灣電影人的最高榮耀，涵蓋劇情長片、紀錄片、短片與動畫片，展現本土創作火力。' },
-      { title: '焦點影人', en: 'FILMMAKER IN FOCUS', img: 'https://via.placeholder.com/600x600/111/4ab0ff?text=FOCUS', desc: '系統性回顧國際重量級或具啟發性導演的作品，深入剖析其獨特的作者美學。' },
+      { title: '國際新導演', en: 'INTERNATIONAL NEW TALENT', img: 'img/poster4.jpg', desc: '挖掘全球具潛力的影像新銳，引領觀眾看見電影藝術的未來趨勢與大膽實驗。' },
+      { title: '台北電影獎', en: 'TAIPEI FILM AWARDS', img: 'img/poster5.jpg', desc: '專屬台灣電影人的最高榮耀，涵蓋劇情長片、紀錄片、短片與動畫片，展現本土創作火力。' },
+      { title: '焦點影人', en: 'FILMMAKER IN FOCUS', img: 'img/poster6.jpg', desc: '系統性回顧國際重量級或具啟發性導演的作品，深入剖析其獨特的作者美學。' },
     ],
   },
   kaohsiung: {
@@ -75,9 +71,9 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
       '近年更積極推動 VR 虛擬實境與 XR 沉浸式體驗，成為台灣引領未來視覺科技的影展先驅。',
     ],
     subFestivals: [
-      { title: '國際短片競賽', en: 'INTERNATIONAL SHORT FILM', img: 'https://via.placeholder.com/600x600/111/ff4d4d?text=SHORTS', desc: '在極短的篇幅內爆發最強大的敘事能量，匯聚全球最生猛、最創新的短片傑作。' },
-      { title: 'XR 無限幻境', en: 'XR DREAMLAND', img: 'https://via.placeholder.com/600x600/111/ff4d4d?text=XR', desc: '打破螢幕邊界，透過 VR、AR 等沉浸式媒介，帶領觀眾進入前所未有的虛擬感官體驗。' },
-      { title: '年度主題策展', en: 'ANNUAL THEME', img: 'https://via.placeholder.com/600x600/111/ff4d4d?text=THEME', desc: '每年針對特定社會議題或電影美學進行深度策展，展現高雄電影節獨特的生猛觀點。' },
+      { title: '國際短片競賽', en: 'INTERNATIONAL SHORT FILM', img: 'img/poster7.jpg', desc: '在極短的篇幅內爆發最強大的敘事能量，匯聚全球最生猛、最創新的短片傑作。' },
+      { title: 'XR 無限幻境', en: 'XR DREAMLAND', img: 'img/poster8.jpg', desc: '打破螢幕邊界，透過 VR、AR 等沉浸式媒介，帶領觀眾進入前所未有的虛擬感官體驗。' },
+      { title: '年度主題策展', en: 'ANNUAL THEME', img: 'img/poster3.jpg', desc: '每年針對特定社會議題或電影美學進行深度策展，展現高雄電影節獨特的生猛觀點。' },
     ],
   },
 }
@@ -144,39 +140,48 @@ function FestivalSubnav({ activeId, fading, onChange }: FestivalSubnavProps) {
   )
 }
 
-function SubCard({ sub, themeColor, delay }: SubCardProps) {
+function SubCard({ sub, themeColor, delay, index }: SubCardProps) {
   const ref = useRef<HTMLDivElement>(null)
 
-  useGSAP(() => {
-    if (!ref.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    gsap.from(ref.current, {
-      opacity: 0,
-      y: 50,
-      duration: 0.8,
-      ease: 'power2.out',
-      delay,
-      scrollTrigger: { trigger: ref.current, start: 'top 85%' },
-    })
-  }, { dependencies: [delay] })
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.classList.add('is-visible')
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.08 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
-  const fallback = `https://via.placeholder.com/600x600/2a2a2a/${themeColor.replace('#', '')}?text=Image`
+  const fallback = `https://picsum.photos/seed/fallback${index}/400/600`
 
   return (
-    <div className="sub-card" ref={ref}>
-      <div className="sub-card-title-wrap">
+    <div className="sub-card" ref={ref} style={{ transitionDelay: `${delay}s` }}>
+      <div className="sub-card-num">0{index + 1}</div>
+      <div className="sub-card-img-wrap">
+        <img
+          src={sub.img}
+          onError={(e) => { (e.target as HTMLImageElement).src = fallback }}
+          alt={sub.title}
+        />
+        <div className="sub-card-gradient" />
+      </div>
+      <div className="sub-card-content">
         <h3 className="sub-card-title">{sub.title}</h3>
         <p className="sub-card-en">{sub.en}</p>
+        <p className="sub-card-desc">{sub.desc}</p>
       </div>
-      <div className="sub-card-img">
-        <img src={sub.img} onError={(e) => { (e.target as HTMLImageElement).src = fallback }} alt={sub.title} />
-      </div>
-      <p className="sub-card-desc">{sub.desc}</p>
-      <button
-        className="sub-card-cta"
-        onClick={() => document.querySelector('.hero-section')?.scrollIntoView({ behavior: 'smooth' })}
-      >
-        關於此影展 ↑
-      </button>
+      <div className="sub-card-accent-bar" />
     </div>
   )
 }
@@ -250,10 +255,10 @@ export default function Festival() {
           </div>
         </section>
 
-        <section className="sub-festivals-section">
+        <section className="sub-section">
           <div className="sub-grid">
             {data.subFestivals.map((sub, i) => (
-              <SubCard key={sub.title} sub={sub} themeColor={data.themeColor} delay={i * 0.2} />
+              <SubCard key={sub.title} sub={sub} themeColor={data.themeColor} delay={i * 0.15} index={i} />
             ))}
           </div>
         </section>

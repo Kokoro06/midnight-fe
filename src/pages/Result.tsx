@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import GrainCanvas from '../components/GrainCanvas'
 import TopNav from '../components/TopNav'
 import { getMoviesByTags, posterUrl, type Movie } from '../lib/directus'
@@ -113,8 +114,24 @@ export default function Result() {
           <h3 className="result-heading">今晚適合怎麼看電影？</h3>
           <p className="result-desc">{data.desc}</p>
           <div className="result-actions">
-            <button className="btn-primary" onClick={() => navigate('/')}>前往首頁推薦</button>
-            <button className="more-btn" onClick={() => navigate('/quiz')}>再測一次</button>
+            <motion.button
+              className="btn-primary"
+              onClick={() => navigate('/')}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+            >
+              前往首頁推薦
+            </motion.button>
+            <motion.button
+              className="more-btn"
+              onClick={() => navigate('/quiz')}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+            >
+              再測一次
+            </motion.button>
           </div>
         </div>
       </div>
@@ -137,7 +154,11 @@ export default function Result() {
           </div>
         )}
         {!loading && !error && movie && (
-          <div className="featured-movie">
+          <motion.div
+            className="featured-movie"
+            whileHover={{ y: -4, boxShadow: '0 20px 48px rgba(0,0,0,0.75)' }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
             <img
               className="featured-poster"
               src={posterUrl(movie.poster)}
@@ -153,7 +174,7 @@ export default function Result() {
               <h3 className="featured-title">{movie.title}</h3>
               <span className="featured-year">{movie.year}</span>
             </div>
-          </div>
+          </motion.div>
         )}
       </section>
     </div>

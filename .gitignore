@@ -33,3 +33,4 @@ directus/extensions
 *.sw?
 test-results/*
 docs/* 
+.browser-sessions/*

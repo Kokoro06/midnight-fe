@@ -6,11 +6,12 @@
   --font-body: "Noto Serif TC", "Times New Roman", serif;
   --font-script: "Shrikhand", cursive;
 
-
   --color-bg-dark: #050910;
   --color-accent-yellow: #f7d25c;
   --color-accent-pink: #f25bb6;
   --color-accent-blue: #4ab0ff;
+  --color-accent-rust: #9d3c24;
+  --color-accent-amber: #cda415;
   --color-text-main: #ffffff;
 }
 
@@ -249,19 +250,19 @@ input[type="text"] {
 #search-btn {
   padding: 10px 24px;
   border-radius: 999px;
-  border: none;
+  border: 1px solid rgba(247,210,92,0.55);
   cursor: pointer;
-  background: #546a7b;
-  color: #102a43;
+  background: rgba(247,210,92,0.1);
+  color: var(--color-accent-yellow);
   font-family: var(--font-body);
   font-weight: 600;
   letter-spacing: 0.1em;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, border-color 0.15s ease;
   box-shadow: 0 4px 0 rgba(0,0,0,0.4);
 }
 
 
-#search-btn:hover  { filter: brightness(1.05); }
+#search-btn:hover  { background: rgba(247,210,92,0.2); border-color: rgba(247,210,92,0.8); }
 #search-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.4); }
 
 
@@ -454,22 +455,8 @@ input[type="text"] {
   margin: 0 0 8px;
   font-family: var(--font-script);
   font-size: 44px;
-  color: #9d3c24;
+  color: var(--color-accent-rust);
   letter-spacing: 0.08em;
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-
-.favorites-year.animate-in {
-  animation: yearFloatUp 1.2s ease-out forwards;
-}
-
-
-@keyframes yearFloatUp {
-  0%   { opacity: 0; transform: translateY(26px); }
-  60%  { opacity: 1; transform: translateY(0);    }
-  100% { opacity: 1; transform: translateY(0);    }
 }
 
 
@@ -506,8 +493,6 @@ input[type="text"] {
   align-items: flex-start;
   background: #0c0905;
   overflow: hidden;
-  opacity: 0;
-  transform: translateY(16px);
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.07),
     0 18px 40px rgba(0,0,0,0.8);
@@ -560,18 +545,6 @@ input[type="text"] {
 }
 
 
-.favorites-card.animate-in {
-  animation: cardFadeUp 0.9s ease-out forwards;
-}
-
-
-@keyframes cardFadeUp {
-  0%   { opacity: 0; transform: translateY(24px); }
-  60%  { opacity: 1; transform: translateY(0);    }
-  100% { opacity: 1; transform: translateY(0);    }
-}
-
-
 .fav-smoke {
   position: absolute;
   inset: 0;
@@ -617,7 +590,7 @@ input[type="text"] {
 .favorites-list {
   position: relative;
   z-index: 3;
-  color: #cda415;
+  color: var(--color-accent-amber);
   font-family: var(--font-body);
   width: 100%;
 }
@@ -648,17 +621,16 @@ input[type="text"] {
 
 /* ================== ✅ 修改後的 MORE 按鈕 CSS (吃角子老虎機效果) ================== */
 
-.more-btn {
+.btn-slot {
   position: relative;
   z-index: 4;
-  /* 按鈕設定固定寬高：寬度 130px，高度 40px */
   width: 130px;
-  height: 40px; 
-  padding: 0; /* 移除原本的 padding，避免干擾 */
+  height: 40px;
+  padding: 0;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(247,210,92,0.3);
   background: transparent;
-  color: #9d3c24; 
+  color: rgba(255,255,255,0.65);
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 14px;
@@ -666,21 +638,17 @@ input[type="text"] {
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s ease;
-  
-  /* 核心：隱藏框框外的文字，形成遮罩 */
-  overflow: hidden; 
-  
-  /* 按鈕本身使用 flex 水平置中內部的滾動容器 */
+  overflow: hidden;
   display: flex;
   justify-content: center;
 }
 
-/* Hover 時讓外框稍微亮一點 */
-.more-btn:hover {
-  border-color: rgba(255, 255, 255, 0.4);
+.btn-slot:hover {
+  border-color: rgba(247,210,92,0.7);
+  color: var(--color-accent-yellow);
 }
 
-.more-btn:active {
+.btn-slot:active {
   transform: translateY(2px);
 }
 
@@ -742,34 +710,6 @@ input[type="text"] {
   .site-title { font-size: 32px; }
   .search-bar { flex-direction: column; align-items: stretch; }
   .mood-tags { justify-content: flex-start; }
-}
-/* ── Scroll Reveal 動畫 ── */
-.favorites {
-  opacity: 0;
-  transform: translateY(60px);
-  transition: opacity 0.9s ease, transform 0.9s ease;
-}
-
-
-.favorites.section-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-
-.favorites.section-visible .favorites-text {
-  animation: slideUp 0.8s ease 0.15s both;
-}
-
-
-.favorites.section-visible .favorites-card.animate-in {
-  animation: slideUp 0.8s ease 0.35s both;
-}
-
-
-@keyframes slideUp {
-  0%   { opacity: 0; transform: translateY(40px); }
-  100% { opacity: 1; transform: translateY(0); }
 }
 /* ================== 底部滾動提示鼠標 ================== */
 
@@ -836,4 +776,34 @@ input[type="text"] {
 @keyframes bounceDown {
   0%, 100% { transform: translateY(-2px); }
   50%      { transform: translateY(3px); }
+}
+
+/* ================== Focus-visible a11y ================== */
+
+.tag:focus-visible,
+#search-btn:focus-visible {
+  outline: 2px solid var(--color-accent-yellow);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.clear-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.btn-slot:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.scroll-hover-zone:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-marquee { animation: none; }
+  .scroll-cursor svg { animation: none; }
 }

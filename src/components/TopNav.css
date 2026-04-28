@@ -128,7 +128,7 @@
   bottom: 0;
   width: 0;
   height: 2px;
-  background: var(--accent-color, #d4af37);
+  background: var(--accent-color, #f7d25c);
   transition: width 0.25s ease;
 }
 
@@ -142,7 +142,7 @@
 }
 
 .global-nav-link:focus-visible {
-  outline: 2px solid var(--accent-color, #d4af37);
+  outline: 2px solid var(--accent-color, #f7d25c);
   outline-offset: 4px;
   border-radius: 2px;
 }
@@ -180,7 +180,7 @@
 }
 
 .global-nav-burger:focus-visible {
-  outline: 2px solid var(--accent-color, #d4af37);
+  outline: 2px solid var(--accent-color, #f7d25c);
   outline-offset: 2px;
 }
 
@@ -226,7 +226,7 @@
 }
 
 .global-nav-mobile-close:focus-visible {
-  outline: 2px solid var(--accent-color, #d4af37);
+  outline: 2px solid var(--accent-color, #f7d25c);
   outline-offset: 2px;
 }
 
@@ -261,11 +261,11 @@
 }
 
 .global-nav-mobile-link.is-active {
-  color: var(--accent-color, #d4af37);
+  color: var(--accent-color, #f7d25c);
 }
 
 .global-nav-mobile-link:focus-visible {
-  outline: 2px solid var(--accent-color, #d4af37);
+  outline: 2px solid var(--accent-color, #f7d25c);
   outline-offset: 2px;
 }
 

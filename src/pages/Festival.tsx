@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import TopNav from '../components/TopNav'
 import './Festival.css'
+
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 type FestivalId = 'goldenHorse' | 'taipei' | 'kaohsiung'
 
@@ -142,20 +147,22 @@ function FestivalSubnav({ activeId, fading, onChange }: FestivalSubnavProps) {
 function SubCard({ sub, themeColor, delay }: SubCardProps) {
   const ref = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) el.classList.add('visible')
-    }, { threshold: 0.15 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
+  useGSAP(() => {
+    if (!ref.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    gsap.from(ref.current, {
+      opacity: 0,
+      y: 50,
+      duration: 0.8,
+      ease: 'power2.out',
+      delay,
+      scrollTrigger: { trigger: ref.current, start: 'top 85%' },
+    })
+  }, { dependencies: [delay] })
 
   const fallback = `https://via.placeholder.com/600x600/2a2a2a/${themeColor.replace('#', '')}?text=Image`
 
   return (
-    <div className="sub-card" ref={ref} style={{ transitionDelay: `${delay}s` }}>
+    <div className="sub-card" ref={ref}>
       <div className="sub-card-title-wrap">
         <h3 className="sub-card-title">{sub.title}</h3>
         <p className="sub-card-en">{sub.en}</p>

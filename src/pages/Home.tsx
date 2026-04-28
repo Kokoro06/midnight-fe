@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useGSAP } from '@gsap/react'
+import { useLenis } from 'lenis/react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import GrainCanvas from '../components/GrainCanvas'
 import TopNav from '../components/TopNav'
 import './Home.css'
+
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 interface Film {
   title: string
@@ -70,7 +76,7 @@ function FavoritesCard({ films, posterId, onMore }: FavoritesCardProps) {
           ))}
         </ul>
         <div className="more-btn-wrap">
-          <button className="more-btn" onClick={onMore}>
+          <button className="btn-slot" onClick={onMore}>
             <div className="btn-marquee">
               <span>MORE</span>
               <span className="arrow">→</span>
@@ -91,6 +97,7 @@ export default function Home() {
   const [showOverlay, setShowOverlay] = useState<boolean>(true)
   const hoverZoneRef = useRef<HTMLDivElement>(null)
   const scrollCursorRef = useRef<HTMLDivElement>(null)
+  const lenis = useLenis()
 
   useEffect(() => {
     document.title = 'Midnight Moodvie — 今晚想看什麼？'
@@ -98,90 +105,71 @@ export default function Home() {
     return () => clearTimeout(t)
   }, [])
 
-  const goResult = () => {
-    const trimmed = mood.trim()
-    if (!trimmed) return
-    navigate(`/recommend?mood=${encodeURIComponent(trimmed)}`)
-  }
+  // ── GSAP scroll animations ──────────────────────────────────────────────
+  useGSAP(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-  useEffect(() => {
-    const favSubs = document.querySelectorAll('.favorites-sub')
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        e.target.classList.toggle('is-visible', e.isIntersecting)
+    // 每個 favorites section 整體淡入 + 上移
+    gsap.utils.toArray<HTMLElement>('.favorites').forEach((section) => {
+      gsap.from(section, {
+        opacity: 0,
+        y: 60,
+        duration: 0.9,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: section, start: 'top 85%' },
       })
-    }, { threshold: 0.4 })
-    favSubs.forEach((el) => obs.observe(el))
-
-    const years = document.querySelectorAll('.favorites-year')
-    const yearObs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        e.target.classList.toggle('animate-in', e.isIntersecting)
-      })
-    }, { threshold: 0.5 })
-    years.forEach((el) => yearObs.observe(el))
-
-    const cards = document.querySelectorAll('.favorites-card')
-    const cardObs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        e.target.classList.toggle('animate-in', e.isIntersecting)
-      })
-    }, { threshold: 0.45 })
-    cards.forEach((el) => cardObs.observe(el))
-
-    const typingEls = document.querySelectorAll('.favorites-sub .typing-text')
-    function typeText(el: Element) {
-      const fullText = el.getAttribute('data-text') ?? ''
-      let index = 0
-      el.textContent = ''
-      el.classList.remove('done')
-      const timer = setInterval(() => {
-        if (index < fullText.length) {
-          el.textContent += fullText.charAt(index)
-          index++
-        } else {
-          clearInterval(timer)
-          el.classList.add('done')
-        }
-      }, 80)
-    }
-    const typingObs = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const span = entry.target.querySelector('.typing-text')
-        if (!span) return
-        if (entry.isIntersecting) {
-          typeText(span)
-        } else {
-          span.textContent = ''
-          span.classList.remove('done')
-        }
-      })
-    }, { threshold: 0.4 })
-    typingEls.forEach((span) => {
-      const parent = span.closest('.favorites-sub')
-      if (parent) typingObs.observe(parent)
     })
 
-    const revealSections = document.querySelectorAll('.favorites')
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('section-visible')
-          revealObserver.unobserve(entry.target)
-        }
+    // year 數字浮現
+    gsap.utils.toArray<HTMLElement>('.favorites-year').forEach((el) => {
+      gsap.from(el, {
+        opacity: 0,
+        y: 26,
+        duration: 1.2,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 85%' },
       })
-    }, { threshold: 0.25 })
-    revealSections.forEach((section) => revealObserver.observe(section))
+    })
 
-    return () => {
-      obs.disconnect()
-      yearObs.disconnect()
-      cardObs.disconnect()
-      typingObs.disconnect()
-      revealObserver.disconnect()
-    }
-  }, [])
+    // 卡片延遲淡入
+    gsap.utils.toArray<HTMLElement>('.favorites-card').forEach((card) => {
+      gsap.from(card, {
+        opacity: 0,
+        y: 24,
+        duration: 0.9,
+        ease: 'power2.out',
+        delay: 0.3,
+        scrollTrigger: { trigger: card, start: 'top 82%' },
+      })
+    })
 
+    // typing text — GSAP counter 取代 setInterval
+    gsap.utils.toArray<HTMLElement>('.favorites-sub').forEach((sub) => {
+      const span = sub.querySelector<HTMLElement>('.typing-text')
+      if (!span) return
+      const fullText = span.getAttribute('data-text') ?? ''
+      let tween: gsap.core.Tween | null = null
+
+      ScrollTrigger.create({
+        trigger: sub,
+        start: 'top 85%',
+        once: true,
+        onEnter() {
+          tween?.kill()
+          span.textContent = ''
+          const obj = { n: 0 }
+          tween = gsap.to(obj, {
+            n: fullText.length,
+            duration: fullText.length * 0.08,
+            ease: 'none',
+            onUpdate() { span.textContent = fullText.slice(0, Math.round(obj.n)) },
+          })
+        },
+      })
+    })
+  })
+
+  // ── Scroll cursor ───────────────────────────────────────────────────────
   useEffect(() => {
     const hoverZone = hoverZoneRef.current
     const scrollCursor = scrollCursorRef.current
@@ -193,7 +181,13 @@ export default function Home() {
     }
     const onEnter = () => scrollCursor.classList.add('is-active')
     const onLeave = () => scrollCursor.classList.remove('is-active')
-    const onClick = () => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
+    const onClick = () => {
+      if (lenis) {
+        lenis.scrollTo(window.innerHeight, { duration: 1.2 })
+      } else {
+        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
+      }
+    }
 
     hoverZone.addEventListener('mousemove', onMove)
     hoverZone.addEventListener('mouseenter', onEnter)
@@ -206,10 +200,16 @@ export default function Home() {
       hoverZone.removeEventListener('mouseleave', onLeave)
       hoverZone.removeEventListener('click', onClick)
     }
-  }, [])
+  }, [lenis])
 
   const addTag = (tag: string) => {
     setMood((prev) => prev ? prev + ' ' + tag : tag)
+  }
+
+  const goResult = () => {
+    const trimmed = mood.trim()
+    if (!trimmed) return
+    navigate(`/recommend?mood=${encodeURIComponent(trimmed)}`)
   }
 
   return (
@@ -241,20 +241,32 @@ export default function Home() {
                 onChange={(e) => setMood(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && goResult()}
               />
-              <button className="clear-btn" onClick={() => setMood('')}>✕</button>
+              <button className="clear-btn" aria-label="清除輸入" onClick={() => setMood('')}>✕</button>
             </div>
             <button id="search-btn" onClick={goResult}>送出</button>
           </div>
           <p className="search-hint">輸入心情關鍵字或點選下方標籤，快速找到今晚的電影</p>
 
           <div className="mood-tags">
-            {MOOD_TAGS.map((tag) => (
-              <button key={tag} className="tag" onClick={() => addTag(tag)}>{tag}</button>
+            {MOOD_TAGS.map((tag, i) => (
+              <button
+                key={tag}
+                className="tag"
+                style={{ animationDelay: `${i * 0.1}s` }}
+                onClick={() => addTag(tag)}
+              >{tag}</button>
             ))}
           </div>
         </main>
 
-        <div className="scroll-hover-zone" ref={hoverZoneRef} />
+        <div
+          className="scroll-hover-zone"
+          ref={hoverZoneRef}
+          role="button"
+          tabIndex={0}
+          aria-label="向下捲動"
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); lenis ? lenis.scrollTo(window.innerHeight, { duration: 1.2 }) : window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }) } }}
+        />
       </div>
 
       <section id="festival" className="block favorites favorites-festival">
@@ -265,7 +277,7 @@ export default function Home() {
               <span className="title-dot">影展推薦</span>
             </h2>
             <p className="favorites-sub">
-              <span className="typing-text" data-text="FAVORITES 4" />
+              <span className="typing-text" data-text="FESTIVAL PICKS">FESTIVAL PICKS</span>
             </p>
           </div>
           <FavoritesCard
@@ -284,7 +296,7 @@ export default function Home() {
               <span className="title-dot">年度推薦</span>
             </h2>
             <p className="favorites-sub">
-              <span className="typing-text" data-text="FAVORITES 4" />
+              <span className="typing-text" data-text="BEST OF 2025">BEST OF 2025</span>
             </p>
           </div>
           <FavoritesCard
@@ -295,7 +307,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="scroll-cursor" ref={scrollCursorRef}>
+      <div className="scroll-cursor" ref={scrollCursorRef} aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <polyline points="19 12 12 19 5 12" />

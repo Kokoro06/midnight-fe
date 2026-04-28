@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import TopNav from '../components/TopNav'
 import './Month.css'
 
@@ -118,50 +119,82 @@ export default function Month() {
 
       <div className="month-container">
         <div className="left-section">
-          <img
-            src={current.still}
-            className="still-bg"
-            alt="電影劇照"
-            style={{ opacity: detailed ? 0.35 : 0.5 }}
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={current.still}
+              src={current.still}
+              className="still-bg"
+              alt="電影劇照"
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: detailed ? 0.35 : 0.5, scale: detailed ? 1.05 : 1 }}
+              exit={{ opacity: 0, scale: 1.02 }}
+              transition={{ duration: 0.7, ease: 'easeInOut' }}
+            />
+          </AnimatePresence>
 
           <div className="floating-title">
-            <h2>{current.title}</h2>
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={current.title}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -14 }}
+                transition={{ duration: 0.38, ease: 'easeOut' }}
+              >
+                {current.title}
+              </motion.h2>
+            </AnimatePresence>
           </div>
 
-          <div className="info-panel" style={{ right: detailed ? '40px' : '-60%', opacity: detailed ? 1 : 0 }}>
-            <button className="close-btn" onClick={() => {
-            setDetailed(false)
-            if (!isPausedRef.current) autoScrollRef.current = true
-          }}>×</button>
-            <div className="info-nav">
-              <button className="info-nav-btn" onClick={goPrev}>← 上一月</button>
-              <button className="info-nav-btn" onClick={goNext}>下一月 →</button>
-            </div>
-            <p className="info-meta">{current.meta}</p>
-            <div className="mood-tags">
-              {current.tags.split(',').map((t) => <span key={t}>{t}</span>)}
-            </div>
-            <p className="info-synopsis" dangerouslySetInnerHTML={{ __html: current.synopsis }} />
-          </div>
+          <AnimatePresence>
+            {detailed && (
+              <motion.div
+                className="info-panel"
+                initial={{ x: 80, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 80, opacity: 0 }}
+                transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+              >
+                <button className="close-btn" onClick={() => {
+                  setDetailed(false)
+                  if (!isPausedRef.current) autoScrollRef.current = true
+                }}>×</button>
+                <div className="info-nav">
+                  <button className="info-nav-btn" onClick={goPrev}>← 上一月</button>
+                  <button className="info-nav-btn" onClick={goNext}>下一月 →</button>
+                </div>
+                <p className="info-meta">{current.meta}</p>
+                <div className="mood-tags">
+                  {current.tags.split(',').map((t) => <span key={t}>{t}</span>)}
+                </div>
+                <p className="info-synopsis" dangerouslySetInnerHTML={{ __html: current.synopsis }} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="right-section" ref={scrollAreaRef}>
           <div className="scroll-wrapper" ref={scrollWrapperRef}>
             {allCards.map((m, i) => (
-              <div
+              <motion.div
                 key={i}
                 className="month-card"
                 data-index={i}
+                role="button"
+                tabIndex={i < MONTHS.length ? 0 : -1}
+                aria-label={m.label}
                 onMouseEnter={() => handleEnter(m)}
                 onMouseLeave={handleLeave}
                 onClick={() => handleClick(m)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(m) } }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
               >
                 <span className="month-label">{m.label}</span>
                 <div className="poster-frame">
                   <img src={m.poster} alt={m.title} />
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

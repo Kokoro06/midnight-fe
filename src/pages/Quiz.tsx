@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import GrainCanvas from '../components/GrainCanvas'
 import TopNav from '../components/TopNav'
 import './Quiz.css'
@@ -60,7 +61,12 @@ const QUESTIONS: Question[] = [
   },
 ]
 
-function typeText(text: string, setter: React.Dispatch<React.SetStateAction<string>>): ReturnType<typeof setInterval> {
+function typeText(
+  text: string,
+  setter: React.Dispatch<React.SetStateAction<string>>,
+  prevTimer?: ReturnType<typeof setInterval>,
+): ReturnType<typeof setInterval> {
+  if (prevTimer !== undefined) clearInterval(prevTimer)
   let i = 0
   setter('')
   const timer = setInterval(() => {
@@ -94,21 +100,23 @@ export default function Quiz() {
   const [questionText, setQuestionText] = useState<string>('')
   const [chosenOption, setChosenOption] = useState<OptionType | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const typingTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
   useEffect(() => {
     document.title = '心情測驗 | Midnight Moodvie'
     timerRef.current = setTimeout(() => {
-      typeText('點根線香，放鬆一下', setTitleText)
+      typingTimerRef.current = typeText('點根線香，放鬆一下', setTitleText, typingTimerRef.current)
     }, 100)
     return () => {
       if (timerRef.current !== null) clearTimeout(timerRef.current)
+      if (typingTimerRef.current !== undefined) clearInterval(typingTimerRef.current)
     }
   }, [])
 
   useEffect(() => {
     if (step >= 1 && step <= 3) {
       const q = QUESTIONS[step - 1]
-      typeText(q.text, setQuestionText)
+      typingTimerRef.current = typeText(q.text, setQuestionText, typingTimerRef.current)
     }
   }, [step])
 
@@ -159,13 +167,16 @@ export default function Quiz() {
             <p className="scene-preview">共 3 題，約需 1 分鐘</p>
             <div className="quiz-divider" style={{ marginBottom: '32px' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <button
-                className="scene-option"
-                style={{ display: 'block', width: '100%', maxWidth: '200px', fontSize: '14px', letterSpacing: '0.15em' }}
+              <motion.button
+                className="scene-option btn-quiz-start"
+                style={{ display: 'block', width: '100%', maxWidth: '200px', fontSize: '14px' }}
                 onClick={() => { setStep(1); setLeaving(false) }}
+                whileHover={{ y: -2, boxShadow: '0 8px 22px rgba(0,0,0,0.45)' }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
               >
                 開始測驗
-              </button>
+              </motion.button>
               <Link to="/" className="skip-link">略過測驗，直接前往首頁</Link>
             </div>
           </div>
@@ -186,13 +197,16 @@ export default function Quiz() {
             <h2 className="scene-question">{step === q.step ? questionText : ''}</h2>
             <div className="scene-options">
               {q.options.map((opt) => (
-                <button
+                <motion.button
                   key={opt.type}
                   className={`scene-option${chosenOption === opt.type ? ' chosen' : ''}`}
                   onClick={() => chooseOption(opt.type)}
+                  whileHover={{ y: -2, boxShadow: '0 8px 22px rgba(0,0,0,0.45)' }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
                 >
                   {opt.text}
-                </button>
+                </motion.button>
               ))}
             </div>
             {q.footnote && <div className="scene-footnote"><small>{q.footnote}</small></div>}

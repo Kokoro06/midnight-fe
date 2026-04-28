@@ -1,3 +1,47 @@
+/* ================== 跑馬燈 ================== */
+
+.marquee-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 998;
+  height: 52px;
+  background: #000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marqueeTicker 22s linear infinite;
+}
+
+.marquee-track span {
+  color: #f7d25c;
+  font-family: "Noto Sans TC", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 36px;
+  padding-right: 0;
+}
+
+@keyframes marqueeTicker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+body:has(.marquee-bar) .global-top-nav {
+  top: 36px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
 /* ================== 基本設定 ================== */
 
 
@@ -281,12 +325,12 @@ input[type="text"] {
 
 
 .tag {
-  padding: 8px 16px;
-  border-radius: 999px;
+  padding: 12px 24px;
+  border-radius: 100%;
   border: 1px solid rgba(255,255,255,0.5);
   background-color: rgba(5,9,16,0.75);
   color: #f7f7f7;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   animation: floaty 3s ease-in-out infinite;
@@ -835,6 +879,46 @@ input[type="text"] {
   45%, 80% { transform: translateY(-40px); }
   /* 再往下拉一格 (顯示底部的 MORE)，完成無縫循環 */
   90%, 100% { transform: translateY(-80px); }
+}
+
+/* ================== Gravity Tags ================== */
+
+.gravity-tags-container {
+  position: relative;
+  width: 100%;
+  max-width: 780px;
+  height: 260px;
+  margin-top: 10px;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  /* subtle top fade to hint tags fall from above */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 12%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%);
+}
+
+.gravity-tags-container:active {
+  cursor: grabbing;
+}
+
+.gravity-tag {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  will-change: transform;
+  animation: none !important;
+  transform-origin: center center;
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.gravity-tag:hover {
+  background-color: #ffffff;
+  color: #111;
+  border-color: #ffffff;
 }
 
 /* ================== RWD ================== */

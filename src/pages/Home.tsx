@@ -5,6 +5,7 @@ import { useLenis } from 'lenis/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import GrainCanvas from '../components/GrainCanvas'
+import GravityTags from '../components/GravityTags'
 import TopNav from '../components/TopNav'
 import './Home.css'
 
@@ -111,6 +112,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [mood, setMood] = useState<string>(() => searchParams.get('tag') ?? '')
+  const [reducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [showOverlay, setShowOverlay] = useState<boolean>(true)
   const hoverZoneRef = useRef<HTMLDivElement>(null)
   const scrollCursorRef = useRef<HTMLDivElement>(null)
@@ -229,8 +231,17 @@ export default function Home() {
     navigate(`/recommend?mood=${encodeURIComponent(trimmed)}`)
   }
 
+  const MARQUEE_TEXT = '今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　'
+
   return (
     <>
+      <div className="marquee-bar" aria-hidden="true">
+        <div className="marquee-track">
+          <span>{MARQUEE_TEXT}</span>
+          <span>{MARQUEE_TEXT}</span>
+        </div>
+      </div>
+
       {showOverlay && (
         <div className="intro-logo-overlay">
           <img src="/img/mm-logo-w.svg" alt="Midnight Moodvie" />
@@ -264,16 +275,15 @@ export default function Home() {
           </div>
           <p className="search-hint">輸入心情關鍵字或點選下方標籤，快速找到今晚的電影</p>
 
-          <div className="mood-tags">
-            {MOOD_TAGS.map((tag, i) => (
-              <button
-                key={tag}
-                className="tag"
-                style={{ animationDelay: `${i * 0.1}s` }}
-                onClick={() => addTag(tag)}
-              >{tag}</button>
-            ))}
-          </div>
+          {reducedMotion ? (
+            <div className="mood-tags">
+              {MOOD_TAGS.map((tag, i) => (
+                <button key={tag} className="tag" style={{ animationDelay: `${i * 0.1}s` }} onClick={() => addTag(tag)}>{tag}</button>
+              ))}
+            </div>
+          ) : (
+            <GravityTags tags={MOOD_TAGS} onTagClick={addTag} />
+          )}
         </main>
 
         <div

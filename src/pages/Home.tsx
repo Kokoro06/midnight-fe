@@ -42,6 +42,23 @@ const YEARLY_FILMS: Film[] = [
   { title: '《我家的事》 Family Matters', poster: 'img/poster3.jpg' },
 ]
 
+function PosterShowcase({ films, variant }: { films: Film[]; variant: 'festival' | 'yearly' }) {
+  return (
+    <div className={`poster-showcase poster-showcase--${variant}`}>
+      <div className="fav-smoke" />
+      <GrainCanvas className="fav-grain" />
+      <div className="festival-posters">
+        {films.map((f, i) => (
+          <div key={f.title} className={`fp-item fp-item--${i}`}>
+            <div className="fp-img" style={{ backgroundImage: `url(${f.poster})` }} />
+            <p className="fp-title">{f.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function FavoritesCard({ films, posterId, onMore }: FavoritesCardProps) {
   const posterRef = useRef<HTMLDivElement>(null)
 
@@ -132,7 +149,7 @@ export default function Home() {
     })
 
     // 卡片延遲淡入
-    gsap.utils.toArray<HTMLElement>('.favorites-card').forEach((card) => {
+    gsap.utils.toArray<HTMLElement>('.poster-showcase').forEach((card) => {
       gsap.from(card, {
         opacity: 0,
         y: 24,
@@ -279,12 +296,17 @@ export default function Home() {
             <p className="favorites-sub">
               <span className="typing-text" data-text="FESTIVAL PICKS">FESTIVAL PICKS</span>
             </p>
+            <div className="more-btn-wrap text-more">
+              <button className="btn-slot" onClick={() => navigate('/festival')}>
+                <div className="btn-marquee">
+                  <span>MORE</span>
+                  <span className="arrow">→</span>
+                  <span>MORE</span>
+                </div>
+              </button>
+            </div>
           </div>
-          <FavoritesCard
-            films={FESTIVAL_FILMS}
-            posterId="festival-poster"
-            onMore={() => navigate('/festival')}
-          />
+          <PosterShowcase films={FESTIVAL_FILMS} variant="festival" />
         </div>
       </section>
 
@@ -298,12 +320,17 @@ export default function Home() {
             <p className="favorites-sub">
               <span className="typing-text" data-text="BEST OF 2025">BEST OF 2025</span>
             </p>
+            <div className="more-btn-wrap text-more">
+              <button className="btn-slot" onClick={() => navigate('/month')}>
+                <div className="btn-marquee">
+                  <span>MORE</span>
+                  <span className="arrow">→</span>
+                  <span>MORE</span>
+                </div>
+              </button>
+            </div>
           </div>
-          <FavoritesCard
-            films={YEARLY_FILMS}
-            posterId="yearly-poster"
-            onMore={() => navigate('/month')}
-          />
+          <PosterShowcase films={YEARLY_FILMS} variant="yearly" />
         </div>
       </section>
 

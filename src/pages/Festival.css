@@ -308,6 +308,34 @@ body {
   transform: translateY(0);
 }
 
+.sub-card-cta {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--accent, var(--accent-color));
+  color: var(--accent, var(--accent-color));
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s, background 0.2s ease;
+}
+
+.sub-card:hover .sub-card-cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sub-card-cta:hover {
+  background: color-mix(in srgb, var(--accent, var(--accent-color)) 15%, transparent);
+}
+
+@media (max-width: 767px) {
+  .sub-card-cta { opacity: 1; transform: translateY(0); }
+}
+
 .sub-card-accent-bar {
   position: absolute;
   bottom: 0;

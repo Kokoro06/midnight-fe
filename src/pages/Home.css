@@ -225,13 +225,19 @@ body {
   flex: 1;
   border-radius: 24px;
   background-color: rgba(5,9,16,0.78);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 44px 8px 12px;
+  min-height: 50px;
 }
 
 
 #mood-input {
-  width: 100%;
-  padding: 14px 40px 14px 18px;
-  border-radius: 24px;
+  flex: 1;
+  min-width: 100px;
+  padding: 4px 0;
   border: none;
   outline: none;
   background: transparent;
@@ -272,6 +278,7 @@ input[type="text"] {
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -282,6 +289,34 @@ input[type="text"] {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.input-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(247,210,92,0.6);
+  background: rgba(247,210,92,0.12);
+  color: #f7d25c;
+  font-family: var(--font-mood);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.input-tag-pill:hover {
+  background: rgba(242,91,182,0.18);
+  border-color: rgba(242,91,182,0.6);
+  color: #f25bb6;
+}
+
+.input-tag-pill span {
+  opacity: 0.65;
+  font-size: 11px;
 }
 
 
@@ -308,6 +343,37 @@ input[type="text"] {
 
 #search-btn:hover  { background: rgba(247,210,92,0.2); border-color: rgba(247,210,92,0.8); }
 #search-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+#search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+#search-btn.is-loading { pointer-events: none; }
+#search-btn.is-tag-mode { padding: 10px 20px; white-space: nowrap; }
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(247,210,92,0.3);
+  border-top-color: var(--color-accent-yellow);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.mood-error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: rgba(255,120,100,0.9);
+  letter-spacing: 0.04em;
+  text-align: center;
+  animation: fadeUpIn 0.3s ease-out both;
+}
+
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 
 /* ================== 心情標籤 ================== */
@@ -881,13 +947,108 @@ input[type="text"] {
   90%, 100% { transform: translateY(-80px); }
 }
 
+/* ================== Tag 選取狀態 ================== */
+
+.gravity-tag--selected {
+  background-color: var(--color-accent-yellow) !important;
+  border-color: var(--color-accent-yellow) !important;
+  color: #111 !important;
+  box-shadow: 0 0 14px rgba(247,210,92,0.45) !important;
+}
+
+.gravity-tag--dimmed {
+  opacity: 0.35;
+}
+
+.tag--selected {
+  background-color: var(--color-accent-yellow) !important;
+  border-color: var(--color-accent-yellow) !important;
+  color: #111 !important;
+  box-shadow: 0 0 14px rgba(247,210,92,0.45) !important;
+}
+
+.tag--dimmed {
+  opacity: 0.35;
+}
+
+/* ================== Tag 送出列 ================== */
+
+.tag-submit-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+  max-width: 780px;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tag-submit-bar.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.tag-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tag-pill {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(247,210,92,0.6);
+  background: rgba(247,210,92,0.1);
+  color: #f7d25c;
+  font-family: var(--font-mood);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  letter-spacing: 0.04em;
+}
+
+.tag-pill:hover {
+  background: rgba(247,210,92,0.18);
+  border-color: rgba(247,210,92,0.9);
+}
+
+.tag-submit-btn {
+  padding: 9px 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(247,210,92,0.7);
+  background: rgba(247,210,92,0.14);
+  color: #f7d25c;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+  white-space: nowrap;
+}
+
+.tag-submit-btn:hover {
+  background: rgba(247,210,92,0.25);
+  border-color: rgba(247,210,92,1);
+}
+
+.tag-submit-btn:active {
+  transform: translateY(1px);
+}
+
 /* ================== Gravity Tags ================== */
 
 .gravity-tags-container {
   position: relative;
   width: 100%;
-  max-width: 780px;
-  height: 260px;
+  max-width: 960px;
+  height: 360px;
   margin-top: 10px;
   overflow: hidden;
   cursor: grab;

@@ -4,6 +4,8 @@ import Matter from 'matter-js'
 interface GravityTagsProps {
   tags: string[]
   onTagClick: (tag: string) => void
+  selectedTags: string[]
+  maxTags: number
 }
 
 interface TagItem {
@@ -14,10 +16,20 @@ interface TagItem {
   h: number
 }
 
-export default function GravityTags({ tags, onTagClick }: GravityTagsProps) {
+export default function GravityTags({ tags, onTagClick, selectedTags, maxTags }: GravityTagsProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const itemsRef = useRef<TagItem[]>([])
   const onTagClickRef = useRef(onTagClick)
   useEffect(() => { onTagClickRef.current = onTagClick }, [onTagClick])
+
+  useEffect(() => {
+    const maxed = selectedTags.length >= maxTags
+    for (const { el, tag } of itemsRef.current) {
+      const isSelected = selectedTags.includes(tag)
+      el.classList.toggle('gravity-tag--selected', isSelected)
+      el.classList.toggle('gravity-tag--dimmed', maxed && !isSelected)
+    }
+  }, [selectedTags, maxTags])
 
   useEffect(() => {
     const container = containerRef.current
@@ -44,7 +56,8 @@ export default function GravityTags({ tags, onTagClick }: GravityTagsProps) {
     probe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;animation:none;pointer-events:none;visibility:hidden;'
     document.body.appendChild(probe)
 
-    const items: TagItem[] = []
+    itemsRef.current = []
+    const items = itemsRef.current
     const timeoutIds: ReturnType<typeof setTimeout>[] = []
 
     // Intro overlay fades out at 1700ms — start cascade right after
@@ -121,6 +134,7 @@ export default function GravityTags({ tags, onTagClick }: GravityTagsProps) {
       cancelAnimationFrame(raf)
       timeoutIds.forEach(clearTimeout)
       items.forEach(({ el }) => { if (container.contains(el)) container.removeChild(el) })
+      itemsRef.current = []
       Matter.World.clear(world, false)
       Matter.Engine.clear(engine)
     }

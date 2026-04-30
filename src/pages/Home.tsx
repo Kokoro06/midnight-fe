@@ -23,11 +23,56 @@ interface FavoritesCardProps {
 }
 
 const MOOD_TAGS: string[] = [
-  '愛情', '快樂', '平靜', '療癒', '溫馨', '驚悚', '懸疑', '喜劇',
-  '科幻', '動作', 'LGBTQ', '犯罪', '諷刺', '文藝', '憂鬱', '燒腦',
-  '寂寞', '奇幻', '末日', '戰爭', '浪漫', '無聊', '放鬆', '青春',
-  '劇情', '公路電影', '紀錄片', '邪典',
+  '想談戀愛', '靜靜看就好', '需要被療癒', '暖暖的就好', '驚悚', '懸疑', '喜劇',
+  '科幻', '動作', '酷兒', '犯罪', '這世界很荒謬', '文藝', '好想哭', '越燒越好',
+  '有點寂寞', '奇幻', '世界毀了也無所謂', '戰爭', '心動的感覺', '躺著看就好', '想念那時候',
+  '劇情', '公路電影', '紀錄片', '想看點怪的',
 ]
+
+const MOOD_TAG_MAP: Record<string, string[]> = {
+  '想談戀愛':       ['愛情', '浪漫'],
+  '靜靜看就好':     ['放鬆', '平靜'],
+  '需要被療癒':     ['療癒', '溫馨'],
+  '暖暖的就好':     ['溫馨', '放鬆'],
+  '驚悚':           ['驚悚'],
+  '懸疑':           ['懸疑', '燒腦'],
+  '喜劇':           ['喜劇', '放鬆'],
+  '科幻':           ['科幻'],
+  '動作':           ['動作'],
+  '酷兒':           ['LGBTQ'],
+  '犯罪':           ['犯罪'],
+  '這世界很荒謬':   ['諷刺', '喜劇'],
+  '文藝':           ['文藝', '劇情'],
+  '好想哭':         ['憂鬱', '劇情'],
+  '越燒越好':       ['燒腦', '懸疑'],
+  '有點寂寞':       ['寂寞'],
+  '奇幻':           ['奇幻'],
+  '世界毀了也無所謂': ['末日', '科幻'],
+  '戰爭':           ['戰爭'],
+  '心動的感覺':     ['浪漫', '愛情'],
+  '躺著看就好':     ['放鬆', '療癒'],
+  '想念那時候':     ['寂寞', '憂鬱'],
+  '劇情':           ['劇情'],
+  '公路電影':       ['公路電影'],
+  '紀錄片':         ['紀錄片'],
+  '想看點怪的':     ['邪典', '驚悚'],
+}
+
+// 反向對應：Directus tag → 找出最能代表它的 MOOD_TAGS
+function mapToMoodTags(directusTags: string[]): string[] {
+  const scores: Record<string, number> = {}
+  for (const dt of directusTags) {
+    for (const [moodTag, dts] of Object.entries(MOOD_TAG_MAP)) {
+      if (dts.includes(dt)) scores[moodTag] = (scores[moodTag] ?? 0) + 1
+    }
+  }
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([tag]) => tag)
+}
+
+const MOOD_MAPPER_URL = import.meta.env.VITE_MOOD_MAPPER_URL ?? 'http://localhost:3001'
 
 const FESTIVAL_FILMS: Film[] = [
   { title: '《末路相縫》 Sew Torn', poster: 'img/poster5.jpg' },
@@ -112,6 +157,13 @@ export default function Home() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [mood, setMood] = useState<string>(() => searchParams.get('tag') ?? '')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [availableTags, setAvailableTags] = useState<string[]>(MOOD_TAGS)
+  const [tagsFromDirectus, setTagsFromDirectus] = useState(false)
+  const [mappingLoading, setMappingLoading] = useState(false)
+  const [mappingError, setMappingError] = useState<string | null>(null)
+  const [pendingMood, setPendingMood] = useState<string>('')
+  const [pendingDirectusTags, setPendingDirectusTags] = useState<string[]>([])
   const [reducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [showOverlay, setShowOverlay] = useState<boolean>(true)
   const hoverZoneRef = useRef<HTMLDivElement>(null)
@@ -122,6 +174,20 @@ export default function Home() {
     document.title = 'Midnight Moodvie — 今晚想看什麼？'
     const t = setTimeout(() => setShowOverlay(false), 1700)
     return () => clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    const directusUrl = import.meta.env.VITE_DIRECTUS_URL ?? 'http://localhost:8055'
+    fetch(`${directusUrl}/items/tags?limit=-1&fields=name&sort=name`)
+      .then(r => r.json())
+      .then(({ data }) => {
+        const names: string[] = (data ?? []).map((t: { name: string }) => t.name).filter(Boolean)
+        if (names.length > 0) {
+          setAvailableTags(names)
+          setTagsFromDirectus(true)
+        }
+      })
+      .catch(() => {}) // Directus 不可用時保留 MOOD_TAGS fallback
   }, [])
 
   // ── GSAP scroll animations ──────────────────────────────────────────────
@@ -222,13 +288,64 @@ export default function Home() {
   }, [lenis])
 
   const addTag = (tag: string) => {
-    setMood((prev) => prev ? prev + ' ' + tag : tag)
+    // 使用者手動點選 → 清除 mood-mapper 的暫存結果
+    setPendingDirectusTags([])
+    setPendingMood('')
+    setMappingError(null)
+    setSelectedTags((prev) => {
+      if (prev.includes(tag)) return prev.filter((t) => t !== tag)
+      if (prev.length >= 3) return prev
+      return [...prev, tag]
+    })
   }
 
-  const goResult = () => {
+  const goResult = async () => {
     const trimmed = mood.trim()
-    if (!trimmed) return
-    navigate(`/recommend?mood=${encodeURIComponent(trimmed)}`)
+    if (!trimmed || mappingLoading) return
+    setMappingLoading(true)
+    setMappingError(null)
+    try {
+      const res = await fetch(MOOD_MAPPER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mood: trimmed }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error ?? '分析失敗')
+      }
+      const { tags } = await res.json()
+      if (!Array.isArray(tags) || tags.length === 0) throw new Error('無法識別心情標籤')
+      setPendingDirectusTags(tags)
+      setPendingMood(trimmed)
+      // 若 UI 顯示 Directus tags，直接高亮；否則反向 mapping 回 MOOD_TAGS
+      if (tagsFromDirectus) {
+        setSelectedTags(tags.filter((t: string) => availableTags.includes(t)).slice(0, 3))
+      } else {
+        setSelectedTags(mapToMoodTags(tags))
+      }
+    } catch {
+      setMappingError('無法分析心情，請試試直接選 tag')
+    } finally {
+      setMappingLoading(false)
+    }
+  }
+
+  const goTagResult = () => {
+    let directusTags: string[]
+    let moodParam = ''
+
+    if (pendingDirectusTags.length > 0) {
+      directusTags = pendingDirectusTags
+      moodParam = `&mood=${encodeURIComponent(pendingMood)}`
+    } else if (tagsFromDirectus) {
+      directusTags = selectedTags
+    } else {
+      directusTags = [...new Set(selectedTags.flatMap((t) => MOOD_TAG_MAP[t] ?? []))]
+    }
+
+    if (directusTags.length === 0) return
+    navigate(`/result?tags=${directusTags.map(encodeURIComponent).join(',')}${moodParam}`)
   }
 
   const MARQUEE_TEXT = '今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　'
@@ -261,29 +378,61 @@ export default function Home() {
 
           <div className="search-bar">
             <div className="search-input-wrap">
+              {selectedTags.map((tag) => (
+                <button key={tag} className="input-tag-pill" onClick={() => addTag(tag)}>
+                  {tag} <span aria-hidden="true">×</span>
+                </button>
+              ))}
               <input
                 id="mood-input"
                 type="text"
-                placeholder="今天的心情如何？"
+                placeholder={selectedTags.length > 0 ? '' : '今天的心情如何？'}
                 value={mood}
-                onChange={(e) => setMood(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && goResult()}
+                onChange={(e) => { setMood(e.target.value); setMappingError(null) }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') selectedTags.length > 0 ? goTagResult() : goResult()
+                }}
+                disabled={mappingLoading}
               />
-              <button className="clear-btn" aria-label="清除輸入" onClick={() => setMood('')}>✕</button>
+              <button
+                className="clear-btn"
+                aria-label="清除輸入"
+                onClick={() => {
+                  setMood('')
+                  setMappingError(null)
+                  setSelectedTags([])
+                  setPendingDirectusTags([])
+                  setPendingMood('')
+                }}
+              >✕</button>
             </div>
-            <button id="search-btn" onClick={goResult}>送出</button>
+            <button
+              id="search-btn"
+              onClick={selectedTags.length > 0 ? goTagResult : goResult}
+              disabled={mappingLoading || (selectedTags.length === 0 && !mood.trim())}
+              className={[mappingLoading ? 'is-loading' : '', selectedTags.length > 0 ? 'is-tag-mode' : ''].filter(Boolean).join(' ')}
+            >
+              {mappingLoading ? <span className="btn-spinner" aria-hidden="true" /> : selectedTags.length > 0 ? '看電影推薦 →' : '送出'}
+            </button>
           </div>
-          <p className="search-hint">輸入心情關鍵字或點選下方標籤，快速找到今晚的電影</p>
+          {mappingError && <p className="mood-error">{mappingError}</p>}
+          {!mappingError && <p className="search-hint">輸入心情關鍵字或點選下方標籤，快速找到今晚的電影</p>}
 
           {reducedMotion ? (
             <div className="mood-tags">
-              {MOOD_TAGS.map((tag, i) => (
-                <button key={tag} className="tag" style={{ animationDelay: `${i * 0.1}s` }} onClick={() => addTag(tag)}>{tag}</button>
+              {availableTags.map((tag, i) => (
+                <button
+                  key={tag}
+                  className={`tag${selectedTags.includes(tag) ? ' tag--selected' : ''}${selectedTags.length >= 3 && !selectedTags.includes(tag) ? ' tag--dimmed' : ''}`}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                  onClick={() => addTag(tag)}
+                >{tag}</button>
               ))}
             </div>
           ) : (
-            <GravityTags tags={MOOD_TAGS} onTagClick={addTag} />
+            <GravityTags tags={availableTags} onTagClick={addTag} selectedTags={selectedTags} maxTags={3} />
           )}
+
         </main>
 
         <div

@@ -27,7 +27,7 @@ function MovieItem({ movie, index }: MovieItemProps) {
       <div className="movie-content">
         <div className="img-wrap">
           <img
-            src={posterUrl(movie.poster)}
+            src={posterUrl(movie)}
             alt={movie.title}
             onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x450/111/444?text=Movie+Visual' }}
           />

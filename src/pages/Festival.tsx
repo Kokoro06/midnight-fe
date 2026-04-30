@@ -9,6 +9,7 @@ interface SubFestival {
   en: string
   img: string
   desc: string
+  url: string
 }
 
 interface FestivalEntry {
@@ -39,9 +40,9 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
       '無論是亞洲電影的新聲音，還是國際名導的新作，都能在金馬影展中找到屬於電影藝術的深刻與自由。',
     ],
     subFestivals: [
-      { title: '奇幻影展', en: 'GOLDEN HORSE FANTASTIC FILM FESTIVAL', img: 'img/poster1.jpg', desc: '與你一起跨越想像邊界，從恐怖到動畫、從武俠到cult片，在奇幻中看見影像的可能。' },
-      { title: '經典影展', en: 'GOLDEN HORSE CLASSIC FILM FESTIVAL', img: 'img/poster2.jpg', desc: '回溯大銀幕上的經典，從默片到黃金時期喜劇，讓電影的時間厚度在當代重現。' },
-      { title: '國際影展', en: 'GOLDEN HORSE INTERNATIONAL FILM FESTIVAL', img: 'img/poster3.jpg', desc: '一年一度華語電影與國際視野的交匯平台，觀賞世界、理解台灣、擁抱影像的多元對話。' },
+      { title: '奇幻影展', en: 'GOLDEN HORSE FANTASTIC FILM FESTIVAL', img: 'img/poster1.jpg', desc: '與你一起跨越想像邊界，從恐怖到動畫、從武俠到cult片，在奇幻中看見影像的可能。', url: 'https://www.ghfff.org.tw/' },
+      { title: '經典影展', en: 'GOLDEN HORSE CLASSIC FILM FESTIVAL', img: 'img/poster2.jpg', desc: '回溯大銀幕上的經典，從默片到黃金時期喜劇，讓電影的時間厚度在當代重現。', url: 'https://www.goldenhorse.org.tw/' },
+      { title: '國際影展', en: 'GOLDEN HORSE INTERNATIONAL FILM FESTIVAL', img: 'img/poster3.jpg', desc: '一年一度華語電影與國際視野的交匯平台，觀賞世界、理解台灣、擁抱影像的多元對話。', url: 'https://www.goldenhorse.org.tw/' },
     ],
   },
   taipei: {
@@ -55,9 +56,9 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
       '影展充滿年輕活力，透過夏日觀影狂歡，持續為台北這座城市注入豐沛的文化動能。',
     ],
     subFestivals: [
-      { title: '國際新導演', en: 'INTERNATIONAL NEW TALENT', img: 'img/poster4.jpg', desc: '挖掘全球具潛力的影像新銳，引領觀眾看見電影藝術的未來趨勢與大膽實驗。' },
-      { title: '台北電影獎', en: 'TAIPEI FILM AWARDS', img: 'img/poster5.jpg', desc: '專屬台灣電影人的最高榮耀，涵蓋劇情長片、紀錄片、短片與動畫片，展現本土創作火力。' },
-      { title: '焦點影人', en: 'FILMMAKER IN FOCUS', img: 'img/poster6.jpg', desc: '系統性回顧國際重量級或具啟發性導演的作品，深入剖析其獨特的作者美學。' },
+      { title: '國際新導演', en: 'INTERNATIONAL NEW TALENT', img: 'img/poster4.jpg', desc: '挖掘全球具潛力的影像新銳，引領觀眾看見電影藝術的未來趨勢與大膽實驗。', url: 'https://www.taipeiff.org.tw/' },
+      { title: '台北電影獎', en: 'TAIPEI FILM AWARDS', img: 'img/poster5.jpg', desc: '專屬台灣電影人的最高榮耀，涵蓋劇情長片、紀錄片、短片與動畫片，展現本土創作火力。', url: 'https://www.taipeiff.org.tw/' },
+      { title: '焦點影人', en: 'FILMMAKER IN FOCUS', img: 'img/poster6.jpg', desc: '系統性回顧國際重量級或具啟發性導演的作品，深入剖析其獨特的作者美學。', url: 'https://www.taipeiff.org.tw/' },
     ],
   },
   kaohsiung: {
@@ -71,9 +72,9 @@ const festivalData: Record<FestivalId, FestivalEntry> = {
       '近年更積極推動 VR 虛擬實境與 XR 沉浸式體驗，成為台灣引領未來視覺科技的影展先驅。',
     ],
     subFestivals: [
-      { title: '國際短片競賽', en: 'INTERNATIONAL SHORT FILM', img: 'img/poster7.jpg', desc: '在極短的篇幅內爆發最強大的敘事能量，匯聚全球最生猛、最創新的短片傑作。' },
-      { title: 'XR 無限幻境', en: 'XR DREAMLAND', img: 'img/poster8.jpg', desc: '打破螢幕邊界，透過 VR、AR 等沉浸式媒介，帶領觀眾進入前所未有的虛擬感官體驗。' },
-      { title: '年度主題策展', en: 'ANNUAL THEME', img: 'img/poster3.jpg', desc: '每年針對特定社會議題或電影美學進行深度策展，展現高雄電影節獨特的生猛觀點。' },
+      { title: '國際短片競賽', en: 'INTERNATIONAL SHORT FILM', img: 'img/poster7.jpg', desc: '在極短的篇幅內爆發最強大的敘事能量，匯聚全球最生猛、最創新的短片傑作。', url: 'https://kff.twcf.org.tw/' },
+      { title: 'XR 無限幻境', en: 'XR DREAMLAND', img: 'img/poster8.jpg', desc: '打破螢幕邊界，透過 VR、AR 等沉浸式媒介，帶領觀眾進入前所未有的虛擬感官體驗。', url: 'https://kff.twcf.org.tw/' },
+      { title: '年度主題策展', en: 'ANNUAL THEME', img: 'img/poster3.jpg', desc: '每年針對特定社會議題或電影美學進行深度策展，展現高雄電影節獨特的生猛觀點。', url: 'https://kff.twcf.org.tw/' },
     ],
   },
 }
@@ -180,6 +181,15 @@ function SubCard({ sub, themeColor, delay, index }: SubCardProps) {
         <h3 className="sub-card-title">{sub.title}</h3>
         <p className="sub-card-en">{sub.en}</p>
         <p className="sub-card-desc">{sub.desc}</p>
+        <a
+          className="sub-card-cta"
+          href={sub.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ '--accent': themeColor } as React.CSSProperties}
+        >
+          了解更多 →
+        </a>
       </div>
       <div className="sub-card-accent-bar" />
     </div>

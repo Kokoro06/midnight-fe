@@ -166,9 +166,15 @@ export default function Home() {
   const [pendingDirectusTags, setPendingDirectusTags] = useState<string[]>([])
   const [reducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [showOverlay, setShowOverlay] = useState<boolean>(true)
-  const hoverZoneRef = useRef<HTMLDivElement>(null)
-  const scrollCursorRef = useRef<HTMLDivElement>(null)
+  const scrollHintRef = useRef<HTMLDivElement>(null)
   const lenis = useLenis()
+
+  useLenis(({ scroll }) => {
+    const hint = scrollHintRef.current
+    if (!hint) return
+    if (scroll > 80) hint.classList.add('is-hidden')
+    else hint.classList.remove('is-hidden')
+  })
 
   useEffect(() => {
     document.title = 'Midnight Moodvie — 今晚想看什麼？'
@@ -254,38 +260,6 @@ export default function Home() {
     })
   })
 
-  // ── Scroll cursor ───────────────────────────────────────────────────────
-  useEffect(() => {
-    const hoverZone = hoverZoneRef.current
-    const scrollCursor = scrollCursorRef.current
-    if (!hoverZone || !scrollCursor) return
-
-    const onMove = (e: MouseEvent) => {
-      scrollCursor.style.left = e.clientX + 'px'
-      scrollCursor.style.top = e.clientY + 'px'
-    }
-    const onEnter = () => scrollCursor.classList.add('is-active')
-    const onLeave = () => scrollCursor.classList.remove('is-active')
-    const onClick = () => {
-      if (lenis) {
-        lenis.scrollTo(window.innerHeight, { duration: 1.2 })
-      } else {
-        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
-      }
-    }
-
-    hoverZone.addEventListener('mousemove', onMove)
-    hoverZone.addEventListener('mouseenter', onEnter)
-    hoverZone.addEventListener('mouseleave', onLeave)
-    hoverZone.addEventListener('click', onClick)
-
-    return () => {
-      hoverZone.removeEventListener('mousemove', onMove)
-      hoverZone.removeEventListener('mouseenter', onEnter)
-      hoverZone.removeEventListener('mouseleave', onLeave)
-      hoverZone.removeEventListener('click', onClick)
-    }
-  }, [lenis])
 
   const addTag = (tag: string) => {
     // 使用者手動點選 → 清除 mood-mapper 的暫存結果
@@ -435,14 +409,13 @@ export default function Home() {
 
         </main>
 
-        <div
-          className="scroll-hover-zone"
-          ref={hoverZoneRef}
-          role="button"
-          tabIndex={0}
-          aria-label="向下捲動"
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); lenis ? lenis.scrollTo(window.innerHeight, { duration: 1.2 }) : window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }) } }}
-        />
+        <div className="scroll-down-hint" ref={scrollHintRef} aria-hidden="true">
+          <span className="scroll-down-hint__label">SCROLL</span>
+          <div className="scroll-down-hint__track">
+            <div className="scroll-down-hint__pearl" />
+          </div>
+        </div>
+
       </div>
 
       <section id="festival" className="block favorites favorites-festival">
@@ -493,12 +466,6 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="scroll-cursor" ref={scrollCursorRef} aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <polyline points="19 12 12 19 5 12" />
-        </svg>
-      </div>
     </>
   )
 }

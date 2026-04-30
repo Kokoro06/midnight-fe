@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Noto Sans TC", sans-serif;
+  font-family: "Noto Serif TC", serif;
   color: #f5f5f5;
   position: relative;
   overflow: hidden;
@@ -55,7 +55,7 @@
   border: 1px solid rgba(255,255,255,0.3);
   background: transparent;
   color: #fff;
-  font-family: "Noto Sans TC", sans-serif;
+  font-family: "Noto Serif TC", serif;
   font-size: 13px;
   letter-spacing: 0.2em;
   text-decoration: none;

@@ -222,7 +222,7 @@
 }
 
 .month-label {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', 'Noto Serif TC', serif;
   font-size: 0.9rem;
   border-bottom: 1px solid #dcdcdc;
   padding-bottom: 8px;

@@ -102,15 +102,41 @@ export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
 
 export type MovieWithScore = Movie & { score: number }
 
-function shuffleByScore(movies: MovieWithScore[]): MovieWithScore[] {
-  const sorted = [...movies].sort((a, b) => b.score - a.score)
-  const poolSize = Math.min(sorted.length, 10)
-  const pool = sorted.slice(0, poolSize)
-  for (let i = pool.length - 1; i > 0; i--) {
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[pool[i], pool[j]] = [pool[j], pool[i]]
+    ;[a[i], a[j]] = [a[j], a[i]]
   }
-  return [...pool, ...sorted.slice(poolSize)]
+  return a
+}
+
+function pickFromPool<T>(sorted: T[], poolSize: number, count: number): T[] {
+  return shuffle(sorted.slice(0, Math.min(poolSize, sorted.length))).slice(0, count)
+}
+
+// 3 得獎 + 2 非得獎，不足時互補
+function mixedSelect(scored: MovieWithScore[], awardCount = 3, plainCount = 2): MovieWithScore[] {
+  const hasWon = (m: MovieWithScore) => m.festival_awards.some((a) => a.result === 'won')
+  const byTagScore = (a: MovieWithScore, b: MovieWithScore) => b.score - a.score
+
+  const awardPool = [...scored.filter(hasWon)].sort(byTagScore)
+  const plainPool = [...scored.filter((m) => !hasWon(m))].sort(byTagScore)
+
+  let award = pickFromPool(awardPool, 12, awardCount)
+  let plain = pickFromPool(plainPool, 8, plainCount)
+
+  // 不足時從另一桶補齊
+  const total = awardCount + plainCount
+  if (award.length + plain.length < total) {
+    const picked = new Set([...award, ...plain])
+    const fallback = shuffle([...awardPool, ...plainPool].filter((m) => !picked.has(m)))
+    const need = total - award.length - plain.length
+    if (award.length < awardCount) award = [...award, ...fallback.slice(0, need)]
+    else plain = [...plain, ...fallback.slice(0, need)]
+  }
+
+  return shuffle([...award, ...plain])
 }
 
 export async function getMoviesByMultipleTags(tagNames: string[]): Promise<MovieWithScore[]> {
@@ -136,18 +162,15 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
       const tagScore = tags
         .filter((t) => tagNames.includes(t.name))
         .reduce((sum, t) => sum + t.weight, 0)
-      const festivalScore = festival_awards.reduce(
-        (sum, a) => sum + (a.result === 'won' ? 2 : 1), 0
-      )
       return {
         id: m.id, title: m.title, original_title: m.original_title,
         year: m.year, poster: m.poster, poster_url: m.poster_url,
         tags, festival_awards,
-        score: tagScore + festivalScore,
+        score: tagScore,
       }
     })
 
-    return shuffleByScore(scored)
+    return mixedSelect(scored)
   } catch {
     const fallback = localFallback(tagNames)
     const scored = fallback.map((m) => ({
@@ -155,7 +178,7 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
       score: m.tags.filter((t) => tagNames.includes(t.name)).reduce((s, t) => s + t.weight, 0),
       festival_awards: [] as FestivalAward[],
     }))
-    return shuffleByScore(scored)
+    return mixedSelect(scored)
   }
 }
 

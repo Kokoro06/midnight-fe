@@ -10,6 +10,7 @@ import Month from './pages/Month'
 import Quiz from './pages/Quiz'
 import Effect from './pages/Effect'
 import Result from './pages/Result'
+import QuizResult from './pages/QuizResult'
 import NotFound from './pages/NotFound'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -63,6 +64,7 @@ function AnimatedRoutes() {
           <Route path="/recommend" element={<Effect />} />
           <Route path="/effect" element={<Effect />} />
           <Route path="/result" element={<Result />} />
+          <Route path="/quiz-result" element={<QuizResult />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>

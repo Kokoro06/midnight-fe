@@ -26,10 +26,6 @@
 .result-wrap {
   max-width: 960px;
   width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr);
-  gap: 36px;
-  align-items: center;
 }
 
 .card {
@@ -128,7 +124,25 @@
   mix-blend-mode: screen;
 }
 
-.card-inner { position: relative; z-index: 3; padding: 36px 32px; }
+.card-inner {
+  position: relative;
+  z-index: 3;
+  padding: 36px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.card-col-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-col-right {
+  display: flex;
+  flex-direction: column;
+}
 
 @keyframes fadeUpIn {
   0% { opacity: 0; transform: translateY(16px); }
@@ -267,23 +281,17 @@
 /* ── 主推薦 ── */
 .primary-movie-card {
   display: flex;
-  gap: 36px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
   width: 100%;
-  padding: 32px;
-  background: rgba(12, 9, 5, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
 }
 
 .primary-poster {
-  width: 200px;
-  height: 300px;
+  width: 100%;
+  aspect-ratio: 2 / 3;
   object-fit: cover;
   border-radius: 12px;
-  flex-shrink: 0;
+  display: block;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
 }
 
@@ -317,13 +325,13 @@
 
 .primary-original {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.45);
   letter-spacing: 0.06em;
 }
 
 .primary-year {
-  font-size: 13px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.12em;
 }
@@ -335,10 +343,11 @@
 
 .secondary-heading {
   margin: 0 0 16px;
-  font-size: 11px;
+  font-size: 16px;
+  text-align: center;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
+  color: #FFF;
 }
 
 .secondary-grid {
@@ -377,7 +386,7 @@
 
 .secondary-title {
   margin: 0;
-  font-size: 13px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.04em;
   line-height: 1.45;
@@ -388,7 +397,7 @@
 }
 
 .secondary-year {
-  font-size: 12px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.1em;
 }
@@ -397,7 +406,7 @@
   display: inline-block;
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   align-self: flex-start;
   white-space: nowrap;
@@ -504,9 +513,8 @@
 .rec-error p { margin: 0; }
 
 @media (max-width: 900px) {
-  .result-wrap { grid-template-columns: 1fr; padding-top: 20px; }
-  .result-wrap > div:first-child { display: flex; flex-direction: column; }
-  .card { order: 1; }
+  .result-wrap { padding-top: 20px; }
+  .card-inner { grid-template-columns: 1fr; }
   .secondary-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 

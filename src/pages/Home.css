@@ -315,12 +315,13 @@ input[type="text"] {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px 3px 12px;
-  border-radius: 999px;
+  padding: 8px 16px;
+  border-radius: 50px;
   border: 1px solid rgba(247,210,92,0.6);
   background: rgba(247,210,92,0.12);
   color: #f7d25c;
   font-family: var(--font-mood);
+  font-weight: 600;
   font-size: 13px;
   white-space: nowrap;
   cursor: pointer;
@@ -415,7 +416,7 @@ input[type="text"] {
 
 .tag {
   padding: 24px 42px;
-  border-radius: 100%;
+  border-radius: 50px;
   border: 1px solid rgba(255,255,255,0.5);
   background-color: rgba(5,9,16,0.75);
   color: #f7f7f7;
@@ -1027,7 +1028,6 @@ input[type="text"] {
 
 .tag-pill {
   padding: 5px 14px;
-  border-radius: 999px;
   border: 1px solid rgba(247,210,92,0.6);
   background: rgba(247,210,92,0.1);
   color: #f7d25c;

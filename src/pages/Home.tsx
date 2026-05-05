@@ -290,14 +290,7 @@ export default function Home() {
       }
       const { tags } = await res.json()
       if (!Array.isArray(tags) || tags.length === 0) throw new Error('無法識別心情標籤')
-      setPendingDirectusTags(tags)
-      setPendingMood(trimmed)
-      // 若 UI 顯示 Directus tags，直接高亮；否則反向 mapping 回 MOOD_TAGS
-      if (tagsFromDirectus) {
-        setSelectedTags(tags.filter((t: string) => availableTags.includes(t)).slice(0, 3))
-      } else {
-        setSelectedTags(mapToMoodTags(tags))
-      }
+      navigate(`/result?tags=${tags.map(encodeURIComponent).join(',')}&mood=${encodeURIComponent(trimmed)}`)
     } catch {
       setMappingError('無法分析心情，請試試直接選 tag')
     } finally {

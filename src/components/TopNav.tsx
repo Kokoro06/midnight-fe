@@ -16,9 +16,10 @@ interface MobileMenuOverlayProps {
 }
 
 const NAV_ITEMS = [
-  { to: '/festival', label: '影展資訊' },
-  { to: '/month', label: '月份推薦' },
-  { to: '/quiz', label: '心情測驗' },
+  { to: '/', label: '首頁', end: true },
+  { to: '/festival', label: '影展資訊', end: false },
+  { to: '/month', label: '月份推薦', end: false },
+  { to: '/quiz', label: '心情測驗', end: false },
 ] as const
 
 function prefersReducedMotion(): boolean {
@@ -32,11 +33,8 @@ function MobileMenuOverlay({ open, onClose, burgerRef }: MobileMenuOverlayProps)
 
   useEffect(() => {
     if (!open) return
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
     const t = setTimeout(() => firstLinkRef.current?.focus(), 50)
     return () => {
-      document.body.style.overflow = prevOverflow
       clearTimeout(t)
       burgerRef.current?.focus()
     }
@@ -45,6 +43,8 @@ function MobileMenuOverlay({ open, onClose, burgerRef }: MobileMenuOverlayProps)
   if (!open) return null
 
   return (
+    <>
+    <div className="global-nav-mobile-backdrop" onClick={onClose} aria-hidden="true" />
     <div
       ref={overlayRef}
       className="global-nav-mobile-overlay"
@@ -69,6 +69,7 @@ function MobileMenuOverlay({ open, onClose, burgerRef }: MobileMenuOverlayProps)
           <li key={item.to}>
             <NavLink
               to={item.to}
+              end={item.end}
               ref={i === 0 ? firstLinkRef : undefined}
               onClick={onClose}
               className={({ isActive }) => `global-nav-mobile-link${isActive ? ' is-active' : ''}`}
@@ -79,6 +80,7 @@ function MobileMenuOverlay({ open, onClose, burgerRef }: MobileMenuOverlayProps)
         ))}
       </ul>
     </div>
+    </>
   )
 }
 
@@ -182,7 +184,7 @@ export default function TopNav({ variant = 'transparent', hideUntilMs, rightSlot
             <li key={item.to}>
               <NavLink
                 to={item.to}
-                end={false}
+                end={item.end}
                 className={({ isActive }) => `global-nav-link${isActive ? ' is-active' : ''}`}
               >
                 {item.label}

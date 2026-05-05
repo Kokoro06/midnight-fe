@@ -157,7 +157,7 @@ export default function Quiz() {
         </QuizCard>
       </section>
 
-      {step >= 1 && <TopNav />}
+      <TopNav />
 
       {QUESTIONS.map((q) => (
         <section key={q.step} className={sceneClass(q.step)}>

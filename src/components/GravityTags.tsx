@@ -38,6 +38,9 @@ export default function GravityTags({ tags, onTagClick, selectedTags, maxTags }:
     const W = container.offsetWidth
     const H = container.offsetHeight
 
+    const isMobile = window.matchMedia('(max-width: 767px)').matches
+    const visibleTags = isMobile ? tags.slice(0, 14) : tags
+
     // Engine
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 1.4 } })
     const world = engine.world
@@ -64,7 +67,7 @@ export default function GravityTags({ tags, onTagClick, selectedTags, maxTags }:
     const BASE_DELAY = 1750
     const INTERVAL = 120  // ms between each tag drop
 
-    tags.forEach((tag, i) => {
+    visibleTags.forEach((tag, i) => {
       probe.textContent = tag
       const w = probe.offsetWidth
       const h = probe.offsetHeight
@@ -107,13 +110,16 @@ export default function GravityTags({ tags, onTagClick, selectedTags, maxTags }:
 
     document.body.removeChild(probe)
 
-    // Mouse constraint for interactive dragging
-    const mouse = Matter.Mouse.create(container)
-    const mc = Matter.MouseConstraint.create(engine, {
-      mouse,
-      constraint: { stiffness: 0.28, angularStiffness: 0.06, render: { visible: false } } as Matter.IConstraintDefinition,
-    })
-    Matter.Composite.add(world, mc)
+    // Mouse constraint for interactive dragging — desktop only
+    // On mobile, skipping this allows native scroll to work uninterrupted
+    if (!isMobile) {
+      const mouse = Matter.Mouse.create(container)
+      const mc = Matter.MouseConstraint.create(engine, {
+        mouse,
+        constraint: { stiffness: 0.28, angularStiffness: 0.06, render: { visible: false } } as Matter.IConstraintDefinition,
+      })
+      Matter.Composite.add(world, mc)
+    }
 
     // Sync DOM elements to physics bodies
     let raf = 0

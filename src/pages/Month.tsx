@@ -32,15 +32,28 @@ export default function Month() {
   const [current, setCurrent] = useState<MonthData>(MONTHS[0])
   const [detailed, setDetailed] = useState<boolean>(false)
   const [isPaused, setIsPaused] = useState<boolean>(false)
+  const [isMobile, setIsMobile] = useState<boolean>(() => window.matchMedia('(max-width: 768px)').matches)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
-  const autoScrollRef = useRef<boolean>(true)
+  const autoScrollRef = useRef<boolean>(!window.matchMedia('(max-width: 768px)').matches)
   const isPausedRef = useRef<boolean>(false)
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => { document.title = '月份推薦 | Midnight Moodvie' }, [])
 
   useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const handler = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches)
+      autoScrollRef.current = !e.matches
+    }
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 768px)').matches) return
+
     const scrollArea = scrollAreaRef.current
     const scrollWrapper = scrollWrapperRef.current
     if (!scrollArea || !scrollWrapper) return
@@ -66,8 +79,9 @@ export default function Month() {
     if (!scrollArea) return
     const cards = scrollArea.querySelectorAll('.month-card')
     const obs = new IntersectionObserver((entries) => {
+      const mobile = window.matchMedia('(max-width: 768px)').matches
       entries.forEach((entry) => {
-        if (entry.isIntersecting && autoScrollRef.current) {
+        if (entry.isIntersecting && (autoScrollRef.current || mobile)) {
           const idx = parseInt((entry.target as HTMLElement).dataset.index ?? '0', 10)
           setCurrent(MONTHS[idx % MONTHS.length])
         }
@@ -150,9 +164,9 @@ export default function Month() {
             {detailed && (
               <motion.div
                 className="info-panel"
-                initial={{ x: 80, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 80, opacity: 0 }}
+                initial={isMobile ? { y: '100%', opacity: 0 } : { x: 80, opacity: 0 }}
+                animate={isMobile ? { y: 0, opacity: 1 } : { x: 0, opacity: 1 }}
+                exit={isMobile ? { y: '100%', opacity: 0 } : { x: 80, opacity: 0 }}
                 transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
               >
                 <button className="close-btn" onClick={() => {

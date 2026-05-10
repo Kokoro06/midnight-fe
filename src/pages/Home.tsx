@@ -4,9 +4,11 @@ import { useGSAP } from '@gsap/react'
 import { useLenis } from 'lenis/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { readItems } from '@directus/sdk'
 import GrainCanvas from '../components/GrainCanvas'
 import GravityTags from '../components/GravityTags'
 import TopNav from '../components/TopNav'
+import { directus } from '../lib/directus'
 import './Home.css'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
@@ -160,6 +162,7 @@ export default function Home() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [availableTags, setAvailableTags] = useState<string[]>(MOOD_TAGS)
   const [tagsFromDirectus, setTagsFromDirectus] = useState(false)
+  const [tagsLoading, setTagsLoading] = useState(true)
   const [mappingLoading, setMappingLoading] = useState(false)
   const [mappingError, setMappingError] = useState<string | null>(null)
   const [pendingMood, setPendingMood] = useState<string>('')
@@ -183,17 +186,25 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const directusUrl = import.meta.env.VITE_DIRECTUS_URL ?? 'http://localhost:8055'
-    fetch(`${directusUrl}/items/tags?limit=-1&fields=name&sort=name`)
-      .then(r => r.json())
-      .then(({ data }) => {
-        const names: string[] = (data ?? []).map((t: { name: string }) => t.name).filter(Boolean)
+    let cancelled = false
+    ;(async () => {
+      try {
+        const result = (await directus.request(
+          readItems('tags', { fields: ['name'], sort: ['name'], limit: -1 })
+        )) as Array<{ name: string }>
+        if (cancelled) return
+        const names = result.map((t) => t.name).filter(Boolean)
         if (names.length > 0) {
           setAvailableTags(names)
           setTagsFromDirectus(true)
         }
-      })
-      .catch(() => {}) // Directus 不可用時保留 MOOD_TAGS fallback
+      } catch {
+        // Directus 不可用時保留 MOOD_TAGS fallback
+      } finally {
+        if (!cancelled) setTagsLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
   }, [])
 
   // ── GSAP scroll animations ──────────────────────────────────────────────
@@ -315,7 +326,7 @@ export default function Home() {
     navigate(`/result?tags=${directusTags.map(encodeURIComponent).join(',')}${moodParam}`)
   }
 
-  const MARQUEE_TEXT = '今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　'
+  const MARQUEE_TEXT = '今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　今晚的你適合看什麼電影？　·　'
 
   return (
     <>
@@ -385,7 +396,9 @@ export default function Home() {
           {mappingError && <p className="mood-error">{mappingError}</p>}
           {!mappingError && <p className="search-hint">輸入心情關鍵字或點選下方標籤，快速找到今晚的電影</p>}
 
-          {reducedMotion ? (
+          {tagsLoading ? (
+            <div className="tags-loading" aria-busy="true" aria-label="載入心情標籤中" />
+          ) : reducedMotion ? (
             <div className="mood-tags">
               {availableTags.map((tag, i) => (
                 <button

@@ -50,6 +50,7 @@ export default function Result() {
 
   const tagsParam = params.get("tags");
   const tagNames = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+  const moodParam = params.get("mood")?.trim() ?? "";
 
   const [movies, setMovies] = useState<MovieWithScore[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,11 +156,18 @@ export default function Result() {
               <h2 className="card-title">心情配電影</h2>
               <p className="card-sub">根據你選擇的心情，為你找到今晚的電影</p>
               <div className="result-side">
-                <h3 className="result-heading">
-                  {tagNames.length > 0
-                    ? `根據你的心情：${tagNames.map((t) => `#${t}`).join(" ")}`
-                    : "今晚想看什麼？"}
-                </h3>
+                {moodParam && tagNames.length > 0 ? (
+                  <div className="mood-echo">
+                    <p className="mood-echo-quote">你說：「<span className="mood-echo-input">{moodParam}</span>」</p>
+                    <p className="mood-echo-tags">→ 我理解為 {tagNames.map((t) => `#${t}`).join(" ")}</p>
+                  </div>
+                ) : (
+                  <h3 className="result-heading">
+                    {tagNames.length > 0
+                      ? `根據你的心情：${tagNames.map((t) => `#${t}`).join(" ")}`
+                      : "今晚想看什麼？"}
+                  </h3>
+                )}
                 <div className="result-actions">
                   <motion.button
                     className="btn-primary"

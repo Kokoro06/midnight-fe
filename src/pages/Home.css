@@ -1,5 +1,4 @@
 /* ================== 跑馬燈 ================== */
-/* jiqwoewqe */
 .marquee-bar {
   position: fixed;
   top: 0;
@@ -19,7 +18,7 @@
 .marquee-track {
   display: flex;
   white-space: nowrap;
-  animation: marqueeTicker 22s linear infinite;
+  animation: marqueeTicker 66s linear infinite;
 }
 
 .marquee-track span {
@@ -1075,6 +1074,27 @@ input[type="text"] {
 
 .tag-submit-btn:active {
   transform: translateY(1px);
+}
+
+/* ================== Tags Loading Placeholder ================== */
+
+.tags-loading {
+  flex: 1;
+  width: calc(100vw - 60px);
+  min-height: 200px;
+  margin-top: 10px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 70%);
+  animation: tagsLoadPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tagsLoadPulse {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 0.55; }
+}
+
+@media (min-width: 769px) {
+  .tags-loading { width: min(620px, calc(100vw - 120px)); }
 }
 
 /* ================== Gravity Tags ================== */

@@ -225,6 +225,12 @@
 
 .result-side { display: flex; flex-direction: column; gap: 20px; }
 .result-heading { font-size: 22px; letter-spacing: 0.16em; margin: 0; opacity: 0; animation: fadeUpIn 0.8s ease-out 0.3s forwards; }
+
+.mood-echo { display: flex; flex-direction: column; gap: 8px; margin: 0; opacity: 0; animation: fadeUpIn 0.8s ease-out 0.3s forwards; }
+.mood-echo-quote { margin: 0; font-size: 16px; line-height: 1.55; color: #f7f7f7; letter-spacing: 0.08em; }
+.mood-echo-input { color: #f7d25c; font-style: normal; font-weight: 500; }
+.mood-echo-tags { margin: 0; font-size: 14px; line-height: 1.5; color: #cda415; letter-spacing: 0.16em; }
+
 .result-desc { font-size: 14px; color: #d0d3e6; line-height: 1.7; opacity: 0; animation: fadeUpIn 0.8s ease-out 0.5s forwards; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; opacity: 0; animation: fadeUpIn 0.8s ease-out 0.7s forwards; }
 

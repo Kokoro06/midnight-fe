@@ -1,5 +1,6 @@
 import { createDirectus, rest, readItems } from '@directus/sdk'
 import { movieDB } from '../data/movieDB'
+import { loadSeen, markSeen, seenPenalty } from './seen'
 
 const DIRECTUS_URL = import.meta.env.VITE_DIRECTUS_URL ?? 'http://localhost:8055'
 
@@ -92,7 +93,17 @@ export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
       festival_awards: m.festival_awards ?? [],
     }))
 
-    if (movies.length > 0) return movies.sort(() => Math.random() - 0.5)
+    if (movies.length > 0) {
+      // 與 Result 共用 seen 記憶：最近看過的排後面，其餘隨機
+      const seen = loadSeen()
+      const now = Date.now()
+      const sorted = movies
+        .map((m) => ({ m, key: -seenPenalty(seen.get(m.id), now) + Math.random() }))
+        .sort((a, b) => b.key - a.key)
+        .map((x) => x.m)
+      markSeen(sorted.slice(0, 5).map((m) => m.id))
+      return sorted
+    }
   } catch {
     // Directus 不可用，使用本地資料
   }
@@ -116,15 +127,24 @@ function pickFromPool<T>(sorted: T[], poolSize: number, count: number): T[] {
 }
 
 // 3 得獎 + 2 非得獎，不足時互補
+// jitter 0–1.0 打破同分排序；近期看過的片再扣 penalty（最高 3.0），7 天後完全恢復
 function mixedSelect(scored: MovieWithScore[], awardCount = 3, plainCount = 2): MovieWithScore[] {
+  const seen = loadSeen()
+  const now = Date.now()
+  const sortKey = new Map<MovieWithScore, number>()
+  for (const m of scored) {
+    const penalty = seenPenalty(seen.get(m.id), now)
+    sortKey.set(m, m.score + Math.random() * 1.0 - penalty)
+  }
+
   const hasWon = (m: MovieWithScore) => m.festival_awards.some((a) => a.result === 'won')
-  const byTagScore = (a: MovieWithScore, b: MovieWithScore) => b.score - a.score
+  const byTagScore = (a: MovieWithScore, b: MovieWithScore) => sortKey.get(b)! - sortKey.get(a)!
 
   const awardPool = [...scored.filter(hasWon)].sort(byTagScore)
   const plainPool = [...scored.filter((m) => !hasWon(m))].sort(byTagScore)
 
-  let award = pickFromPool(awardPool, 12, awardCount)
-  let plain = pickFromPool(plainPool, 8, plainCount)
+  let award = pickFromPool(awardPool, 50, awardCount)
+  let plain = pickFromPool(plainPool, 50, plainCount)
 
   // 不足時從另一桶補齊
   const total = awardCount + plainCount
@@ -170,7 +190,9 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
       }
     })
 
-    return mixedSelect(scored)
+    const picks = mixedSelect(scored)
+    markSeen(picks.map((m) => m.id))
+    return picks
   } catch {
     const fallback = localFallback(tagNames)
     const scored = fallback.map((m) => ({
@@ -178,7 +200,9 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
       score: m.tags.filter((t) => tagNames.includes(t.name)).reduce((s, t) => s + t.weight, 0),
       festival_awards: [] as FestivalAward[],
     }))
-    return mixedSelect(scored)
+    const picks = mixedSelect(scored)
+    markSeen(picks.map((m) => m.id))
+    return picks
   }
 }
 

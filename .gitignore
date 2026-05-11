@@ -32,5 +32,8 @@ directus/extensions
 *.sln
 *.sw?
 test-results/*
-docs/* 
+docs/*
 .browser-sessions/*
+
+# e2e tests & artifacts
+e2e/

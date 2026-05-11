@@ -138,3 +138,23 @@
 .movie-num { font-size: 1rem; color: #868773; margin-bottom: 10px; display: block; }
 .movie-name { font-size: 2rem; margin-bottom: 15px; font-weight: 500; }
 .movie-tags { font-size: 0.8rem; letter-spacing: 1px; opacity: 0.6; }
+
+@media (max-width: 767px) {
+  .project-list { padding: 60px 20px; }
+  .movie-item { margin-bottom: 12vh; }
+  .movie-content,
+  .movie-item:nth-child(even) .movie-content {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  .img-wrap {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+  .info-wrap {
+    width: 100%;
+    padding-top: 8px;
+  }
+  .movie-name { font-size: 1.4rem; }
+}

@@ -24,7 +24,7 @@
 }
 
 .result-wrap {
-  max-width: 960px;
+  max-width: 1023px;
   width: 100%;
 }
 
@@ -518,9 +518,13 @@
 
 .rec-error p { margin: 0; }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .result-wrap { padding-top: 20px; }
-  .card-inner { grid-template-columns: 1fr; }
+  .card-inner {
+    grid-template-columns: 1fr;
+    padding: 28px 24px;
+    gap: 20px;
+  }
   .secondary-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 
@@ -537,4 +541,20 @@
   .featured-movie { padding: 16px; gap: 16px; }
   .featured-poster { width: 88px; height: 132px; }
   .featured-title { font-size: 17px; }
+}
+
+@media (max-width: 399px) {
+  .secondary-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .secondary-card {
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+  }
+  .secondary-poster-wrap {
+    width: 100px;
+    flex-shrink: 0;
+  }
 }

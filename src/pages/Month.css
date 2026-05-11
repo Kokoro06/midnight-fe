@@ -56,6 +56,10 @@
   transition: font-size 0.6s ease, letter-spacing 0.6s ease;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .floating-title h2 { transition: none; }
+}
+
 .info-panel {
   position: absolute;
   top: 56%;
@@ -198,6 +202,17 @@
   letter-spacing: 0.1rem;
 }
 
+.month-page.detailed-mode {
+  overflow: hidden;
+  touch-action: none;
+}
+
+.info-panel {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: max(44px, calc(env(safe-area-inset-bottom) + 16px));
+}
+
 
 .right-section {
   flex: 0 0 35%;
@@ -270,10 +285,12 @@
   85%, 100% { transform: translateY(-105%); opacity: 0; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .side-instruction { display: none; }
   .scroll-pause-btn { display: none; }
+}
 
+@media (max-width: 767px) {
   .month-page {
     height: 100dvh;
   }
@@ -326,11 +343,14 @@
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 16px 24px;
+    padding: 16px 0;
     display: flex;
     align-items: center;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 50%;
     box-shadow: none;
     height: auto;
   }
@@ -345,6 +365,13 @@
     height: 100%;
   }
 
+  .scroll-wrapper::before,
+  .scroll-wrapper::after {
+    content: '';
+    flex: 0 0 auto;
+    width: calc(50vw - 45px);
+  }
+
   /* Hide duplicate cards (indices 12–23) on mobile */
   .scroll-wrapper .month-card:nth-child(n+13) {
     display: none;
@@ -355,6 +382,7 @@
     width: 90px;
     margin: 0;
     scroll-snap-align: center;
+    scroll-snap-stop: always;
   }
 
   .month-label {
@@ -376,7 +404,20 @@
     max-height: 65dvh;
     transform: none;
     border-radius: 20px 20px 0 0;
-    padding: 28px 24px 44px;
+    padding: 28px 24px max(44px, calc(env(safe-area-inset-bottom) + 16px));
+  }
+
+  .info-panel::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.4);
+    pointer-events: none;
   }
 
   .close-btn {

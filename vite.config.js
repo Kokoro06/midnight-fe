@@ -6,5 +6,17 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    proxy: {
+      '/img-proxy/tmdb': {
+        target: 'https://image.tmdb.org',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/img-proxy\/tmdb/, ''),
+      },
+      '/img-proxy/directus': {
+        target: 'http://localhost:8055',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/img-proxy\/directus/, ''),
+      },
+    },
   },
 })

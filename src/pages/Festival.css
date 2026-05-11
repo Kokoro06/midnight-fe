@@ -32,15 +32,15 @@ body {
   position: relative;
   background: transparent;
   border: none;
-  padding: 8px 4px;
+  padding: 12px 8px;
   font-family: "Noto Serif TC", "Times New Roman", serif;
   font-size: 14px;
+  line-height: 1.5;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: color 0.2s ease;
   filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.7));
-  min-height: 44px;
 }
 
 .festival-subnav-tab::after {
@@ -104,14 +104,15 @@ body {
   justify-content: center;
   line-height: 0.85;
   opacity: 0.15;
+  overflow: hidden;
 }
 
 .bg-text-container span {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(100px, 18vw, 300px);
+  font-size: clamp(80px, 16vw, 280px);
   color: var(--accent-color);
   text-transform: uppercase;
-  margin: 0 10px;
+  padding: 0 4px;
   opacity: 0;
   animation: randomFadeIn 2s forwards, glowAndFloat 4s infinite alternate ease-in-out;
   transition: color 0.5s ease;
@@ -358,9 +359,21 @@ body {
 }
 
 @media (max-width: 767px) {
-  .bg-text-container span { font-size: 25vw; }
+  .bg-text-container span {
+    font-size: clamp(48px, 18vw, 110px);
+    line-height: 0.9;
+  }
   .sub-section { padding: 40px 16px 60px; }
   .sub-grid { grid-template-columns: 1fr; gap: 3px; }
   .sub-card-img-wrap { aspect-ratio: 4 / 3; }
   .sub-card-desc { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 479px) {
+  .sub-section { padding: 32px 16px 48px; }
+  .sub-card {
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

@@ -13,7 +13,8 @@ export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasP
     const card = (
       canvas.closest('.quiz-card') ||
       canvas.closest('.card') ||
-      canvas.closest('.favorites-card')
+      canvas.closest('.favorites-card') ||
+      canvas.closest('.qr-card')
     ) as HTMLElement | null
     if (!card) return
 

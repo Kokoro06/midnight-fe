@@ -126,14 +126,10 @@
 .qr-card-inner {
   position: relative;
   z-index: 3;
-  padding: 36px 24px 36px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-@media (min-width: 600px) {
-  .qr-card-inner { padding: 44px 40px 44px; }
 }
 
 /* ── Header ── */
@@ -141,10 +137,16 @@
   position: relative;
   opacity: 0;
   animation: qrFadeUp 0.7s ease-out 0.1s forwards;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .qr-header-text {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -159,8 +161,8 @@
 }
 
 .qr-title {
-  margin: 0;
-  font-size: 53px;
+  margin-top: auto;
+  font-size: 64px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #ffffff;
@@ -176,36 +178,26 @@
   52%       { opacity: 1; }
 }
 
-.qr-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.qr-tag {
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  color: rgba(247,210,92,0.85);
-  border: 1px solid rgba(247,210,92,0.35);
-  background: rgba(247,210,92,0.08);
-}
-
 .qr-character {
-  position: absolute;
-  top: -10px;
-  right: -8px;
-  width: 150px;
-  height: 150px;
+  margin-left: auto;
+  margin-right: -20px;
+  margin-bottom: -20px;
+  display: block;
+  width: 60%;
+  aspect-ratio: 1 / 1.4;
+  height: auto;
   object-fit: contain;
   z-index: 0;
   opacity: 0;
   animation: qrFadeUp 0.7s ease-out 0.15s forwards;
 }
 
-@media (min-width: 600px) {
-  .qr-character { width: 170px; height: 170px; }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .qr-character { width: 55%; }
+}
+
+@media (min-width: 1024px) {
+  .qr-character { width: 50%; }
 }
 
 /* ── Description box ── */
@@ -253,29 +245,16 @@
   text-align: center;
 }
 
-.qr-movie-card {
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-}
-
 .qr-poster {
   display: block;
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
   background: #1a1410;
-}
-
-.qr-movie-overlay {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 30%;
-  background: linear-gradient(to top, transparent, #000000c5);
-  display: flex;
-  align-items: flex-start;
-  padding: 20px;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6);
 }
 
 .qr-movie-info {
@@ -283,6 +262,15 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.qr-festival-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .qr-festival-badge {
@@ -295,7 +283,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  align-self: flex-start;
+  text-align: center;
 }
 
 .qr-festival-badge--won {
@@ -311,12 +299,13 @@
 }
 
 .qr-movie-title {
-  margin: 0;
+  margin-top: 20px;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #ffffff;
   line-height: 1.35;
+  text-align: center;
 }
 
 .qr-movie-meta {
@@ -324,6 +313,7 @@
   font-size: 14px;
   color: #fff;
   letter-spacing: 0.05em;
+  text-align: center;
 }
 
 .qr-meta-sep {
@@ -362,10 +352,10 @@
 
 .qr-error p { margin: 0; }
 
-/* ── Companions 2×2 grid ── */
+/* ── Companions (horizontal card, matches story layout) ── */
 .qr-companions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
   opacity: 0;
   animation: qrFadeUp 0.7s ease-out 0.52s forwards;
@@ -373,34 +363,50 @@
 
 .qr-companion-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
-  padding: 16px 12px 14px;
+  gap: 14px;
+  padding: 14px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(0,0,0,0.2);
-  text-align: center;
+  background: rgba(28,18,12,0.55);
+  text-align: left;
+}
+
+.qr-companion-img {
+  width: 72px;
+  height: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.qr-companion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .qr-companion-label {
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: #f7d25c;
 }
 
-.qr-companion-img {
-  width: 52px;
-  height: 52px;
-  object-fit: contain;
-}
-
 .qr-companion-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #fff;
   letter-spacing: 0.06em;
-  line-height: 1.4;
+  line-height: 1.3;
+}
+
+.qr-companion-reason {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.72);
+  letter-spacing: 0.02em;
+  line-height: 1.55;
 }
 
 /* ── Actions ── */
@@ -466,4 +472,324 @@
 @keyframes qrFadeUp {
   0%   { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 479px) {
+  .qr-companion-card {
+    padding: 12px;
+    gap: 12px;
+  }
+  .qr-companion-img {
+    width: 60px;
+  }
+}
+
+/* ─────────── Instagram Story capture target (1080×1920) ─────────── */
+.qr-story {
+  position: absolute;
+  left: -99999px;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+  background: #0c0905;
+  font-family: "Noto Serif TC", serif;
+  color: #fff;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Dev preview: ?preview=story lifts the story DOM on-screen, scaled to fit viewport.
+   Uses HMR-friendly CSS only — edits to .qrs-* update live in the browser. */
+.qr-story--preview {
+  position: fixed;
+  left: 50%;
+  top: 16px;
+  transform: translate(-50%, 0) scale(var(--qrs-preview-scale, 0.46));
+  transform-origin: top center;
+  z-index: 50;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  outline: 1px dashed rgba(247, 210, 92, 0.45);
+  pointer-events: auto;
+}
+
+@media (min-height: 1000px) {
+  .qr-story--preview { --qrs-preview-scale: 0.52; }
+}
+@media (max-height: 800px) {
+  .qr-story--preview { --qrs-preview-scale: 0.38; }
+}
+
+.qrs-smoke-a,
+.qrs-smoke-b {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+}
+
+.qrs-smoke-a {
+  width: 80%;
+  height: 50%;
+  top: -12%;
+  right: -18%;
+  background: radial-gradient(circle, rgba(165, 58, 8, 0.85) 0%, rgba(110, 30, 5, 0.5) 45%, transparent 72%);
+}
+
+.qrs-smoke-b {
+  width: 65%;
+  height: 42%;
+  bottom: -12%;
+  left: -12%;
+  background: radial-gradient(circle, rgba(130, 42, 6, 0.7) 0%, rgba(80, 20, 4, 0.42) 50%, transparent 72%);
+}
+
+.qrs-inner {
+  position: relative;
+  z-index: 1;
+  padding: 80px 70px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header: title left, character right */
+.qrs-header {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: 360px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.qrs-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+
+.qrs-eyebrow {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: 0.18em;
+  color: #fff;
+}
+
+.qrs-title {
+  margin: 0;
+  margin-top: auto;
+  font-size: 148px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.18);
+}
+
+.qrs-character {
+  margin-left: -40px;
+  width: 60%;
+  aspect-ratio: 1 / 1.4;
+  object-fit: contain;
+  display: block;
+  flex: 0 0 auto;
+  margin-top: auto;
+}
+
+/* Movie row: poster + title on left, tags + sub on right */
+.qrs-movie-row {
+  display: flex;
+  gap: 50px;
+  align-items: flex-start;
+}
+
+.qrs-movie-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.qrs-movie-heading {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: #f7d25c;
+  letter-spacing: 0.04em;
+}
+
+.qrs-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: #1a1410;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+  display: block;
+}
+
+.qrs-movie-title {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.qrs-movie-meta {
+  margin: 0;
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.qrs-meta-sep {
+  margin: 0 6px;
+  opacity: 0.5;
+}
+
+.qrs-right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-width: 0;
+  padding-top: 260px;
+}
+
+.qrs-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0 4px;
+}
+
+.qrs-tag {
+  display: inline-block;
+  padding: 10px 24px;
+  border: 1px solid rgba(247, 210, 92, 0.6);
+  background: rgba(247, 210, 92, 0.12);
+  border-radius: 999px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #f7d25c;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.qrs-tag--tilt {
+  transform: rotate(-5deg);
+  transform-origin: center;
+}
+
+.qrs-desc-sub {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+  color: #f7d25c;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
+}
+
+.qrs-desc-text {
+  margin: 0;
+  font-size: 24px;
+  color: #fff;
+  letter-spacing: 0.04em;
+  line-height: 1.75;
+}
+
+/* Companions row — horizontal card layout */
+.qrs-companions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.qrs-companion-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 40px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  background: rgba(28, 18, 12, 0.72);
+  text-align: left;
+}
+
+.qrs-companion-img {
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.qrs-companion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.qrs-companion-label {
+  font-size: 24px;
+  font-weight: 600;
+  color: #f7d25c;
+  letter-spacing: 0.08em;
+}
+
+.qrs-companion-name {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.qrs-companion-reason {
+  margin-top: 4px;
+  font-size: 19px;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* Footer brand row */
+.qrs-footer {
+  margin: 20px -70px -50px;
+  padding: 12px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f7d25c;
+}
+
+.qrs-brand {
+  height: 48px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.qrs-url {
+  font-size: 26px;
+  font-weight: 600;
+  color: #000;
+  letter-spacing: 0.06em;
+  border: 1px solid #000;
+  padding: 4px 36px;
+  border-radius: 999px;
 }

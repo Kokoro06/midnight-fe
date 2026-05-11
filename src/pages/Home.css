@@ -1,3 +1,5 @@
+@import url("https://font.emtech.cc/css/FusionPixelFont10px");
+
 /* ================== 跑馬燈 ================== */
 .marquee-bar {
   position: fixed;
@@ -5,7 +7,7 @@
   left: 0;
   right: 0;
   z-index: 998;
-  height: 52px;
+  height: 24px;
   background: #000;
   overflow: hidden;
   display: flex;
@@ -23,8 +25,8 @@
 
 .marquee-track span {
   color: #f7d25c;
-  font-family: "Noto Serif TC", "Times New Roman", serif;
-  font-size: 13px;
+  font-family: "FusionPixelFont10px", "Noto Serif TC", "Times New Roman", serif;
+  font-size: 24px;
   font-weight: 500;
   letter-spacing: 0.14em;
   line-height: 36px;
@@ -37,7 +39,7 @@
 }
 
 body:has(.marquee-bar) .global-top-nav {
-  top: 36px;
+  top: 24px;
   @media (max-width: 768px) {
     top: 0px;
   }
@@ -216,7 +218,7 @@ body {
 
 
 .search-bar {
-  width: calc(100vw - 60px);
+  width: 100%;
   max-width: 860px;
   display: flex;
   align-items: stretch;
@@ -1080,7 +1082,7 @@ input[type="text"] {
 
 .tags-loading {
   flex: 1;
-  width: calc(100vw - 60px);
+  width: 100%;
   min-height: 200px;
   margin-top: 10px;
   border-radius: 24px;
@@ -1093,15 +1095,19 @@ input[type="text"] {
   50%      { opacity: 0.55; }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (max-width: 1024px) {
   .tags-loading { width: min(620px, calc(100vw - 120px)); }
+}
+
+@media (min-width: 1025px) {
+  .tags-loading { width: min(1200px, calc(100vw - 160px)); }
 }
 
 /* ================== Gravity Tags ================== */
 
 .gravity-tags-container {
   position: relative;
-  width: calc(100vw - 60px);
+  width: 100%;
   flex: 1;
   min-height: 0;
   margin-top: 10px;
@@ -1111,10 +1117,18 @@ input[type="text"] {
   -webkit-user-select: none;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (max-width: 1024px) {
   .gravity-tags-container {
     width: min(620px, calc(100vw - 120px));
   }
+}
+
+@media (min-width: 1025px) {
+  .mood-search { max-width: 1280px; padding-bottom: 80px; }
+  .gravity-tags-container {
+    width: min(1200px, calc(100vw - 160px));
+  }
+  .tag { font-size: 18px; padding: 10px 18px; letter-spacing: 0.12em; }
 }
 
 .gravity-tags-container:active {
@@ -1150,7 +1164,27 @@ input[type="text"] {
 }
 
 
-@media (max-width: 768px) {
+@media (min-width: 768px) and (max-width: 1023px) {
+  .favorites-poster-float {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    transform: none;
+    width: 100px;
+    height: 155px;
+  }
+  .favorites-poster-float.has-image {
+    transform: none;
+  }
+  #festival-poster,
+  #yearly-poster {
+    left: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .favorites-poster-float { display: none; }
   .site-title { font-size: 32px; margin: 0 0 16px; }
   .site-title img { height: 72px; }
   .mood-search { padding: 72px 16px 48px; }
@@ -1171,11 +1205,16 @@ input[type="text"] {
   }
   #search-btn.is-tag-mode { padding: 14px 24px; }
 }
+
+@media (max-width: 360px) {
+  .tag { padding: 6px 10px; font-size: 11px; }
+  .mood-tags { gap: 4px 6px; }
+}
 /* ================== Scroll Down Hint ================== */
 
 .scroll-down-hint {
   position: absolute;
-  bottom: 44px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1201,7 +1240,7 @@ input[type="text"] {
 
 .scroll-down-hint__track {
   width: 1px;
-  height: 60px;
+  height: 40px;
   background: rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;

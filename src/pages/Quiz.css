@@ -69,7 +69,7 @@
 .quiz-card {
   position: relative;
   width: 100%;
-  max-width: 480px;
+  max-width: min(480px, calc(100vw - 32px));
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.6);
@@ -244,6 +244,9 @@
   color: rgba(247,210,92,0.5);
 }
 .quiz-exit-link {
+  display: inline-block;
+  padding: 10px 8px;
+  min-height: 44px;
   font-size: 14px;
   color: rgba(255,255,255,0.35);
   letter-spacing: 0.1em;
@@ -296,9 +299,10 @@
   position: relative;
   z-index: 4;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   padding: 14px 18px;
+  min-height: 44px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(0,0,0,0.32);
@@ -358,7 +362,8 @@
 .scene-option {
   position: relative;
   z-index: 4;
-  padding: 11px 22px;
+  padding: 12px 22px;
+  min-height: 44px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.15);
   background: rgba(0,0,0,0.38);
@@ -398,13 +403,14 @@
 .skip-link {
   display: inline-block;
   margin-top: 18px;
+  padding: 10px 8px;
+  min-height: 44px;
   font-size: 14px;
   color: rgba(255,255,255,0.45);
   letter-spacing: 0.15em;
   text-decoration: none;
   transition: all 0.3s ease;
   border-bottom: 1px solid transparent;
-  padding-bottom: 2px;
   position: relative;
   z-index: 4;
 }
@@ -443,4 +449,8 @@
   background: rgba(247,210,92,0.22) !important;
   border-color: rgba(247,210,92,0.85) !important;
   color: #fff !important;
+}
+
+@media (max-width: 359px) {
+  .scene { padding: 12px; }
 }

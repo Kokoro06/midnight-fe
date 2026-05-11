@@ -32,17 +32,17 @@ export default function Month() {
   const [current, setCurrent] = useState<MonthData>(MONTHS[0])
   const [detailed, setDetailed] = useState<boolean>(false)
   const [isPaused, setIsPaused] = useState<boolean>(false)
-  const [isMobile, setIsMobile] = useState<boolean>(() => window.matchMedia('(max-width: 768px)').matches)
+  const [isMobile, setIsMobile] = useState<boolean>(() => window.matchMedia('(max-width: 767px)').matches)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
-  const autoScrollRef = useRef<boolean>(!window.matchMedia('(max-width: 768px)').matches)
+  const autoScrollRef = useRef<boolean>(!window.matchMedia('(max-width: 767px)').matches)
   const isPausedRef = useRef<boolean>(false)
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => { document.title = '月份推薦 | Midnight Moodvie' }, [])
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)')
+    const mq = window.matchMedia('(max-width: 767px)')
     const handler = (e: MediaQueryListEvent) => {
       setIsMobile(e.matches)
       autoScrollRef.current = !e.matches
@@ -52,7 +52,7 @@ export default function Month() {
   }, [])
 
   useEffect(() => {
-    if (window.matchMedia('(max-width: 768px)').matches) return
+    if (window.matchMedia('(max-width: 767px)').matches) return
 
     const scrollArea = scrollAreaRef.current
     const scrollWrapper = scrollWrapperRef.current
@@ -79,7 +79,7 @@ export default function Month() {
     if (!scrollArea) return
     const cards = scrollArea.querySelectorAll('.month-card')
     const obs = new IntersectionObserver((entries) => {
-      const mobile = window.matchMedia('(max-width: 768px)').matches
+      const mobile = window.matchMedia('(max-width: 767px)').matches
       entries.forEach((entry) => {
         if (entry.isIntersecting && (autoScrollRef.current || mobile)) {
           const idx = parseInt((entry.target as HTMLElement).dataset.index ?? '0', 10)

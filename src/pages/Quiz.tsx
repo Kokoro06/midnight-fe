@@ -12,26 +12,42 @@ interface QuizCardProps {
   children: React.ReactNode;
 }
 
-function typeText(
-  text: string,
-  setter: React.Dispatch<React.SetStateAction<string>>,
-  onComplete?: () => void,
-  prevTimer?: ReturnType<typeof setInterval>,
-): ReturnType<typeof setInterval> {
-  if (prevTimer !== undefined) clearInterval(prevTimer);
-  let i = 0;
+interface TypeHandle {
+  cancel: () => void;
+}
+
+const TYPE_CHARS_PER_SECOND = 10;
+
+function typeText(text: string, setter: React.Dispatch<React.SetStateAction<string>>, onComplete?: () => void, prevHandle?: TypeHandle): TypeHandle {
+  prevHandle?.cancel();
   setter("");
-  const timer = setInterval(() => {
-    if (i < text.length) {
-      const char = text.charAt(i);
-      i++;
-      setter((prev) => prev + char);
-    } else {
-      clearInterval(timer);
-      onComplete?.();
+  let cancelled = false;
+  let rafId = 0;
+  let lastIdx = 0;
+  const start = performance.now();
+
+  const tick = (now: number) => {
+    if (cancelled) return;
+    const elapsed = now - start;
+    const targetIdx = Math.min(text.length, Math.floor((elapsed / 1000) * TYPE_CHARS_PER_SECOND));
+    if (targetIdx > lastIdx) {
+      setter(text.slice(0, targetIdx));
+      lastIdx = targetIdx;
     }
-  }, 10);
-  return timer;
+    if (targetIdx >= text.length) {
+      onComplete?.();
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  };
+  rafId = requestAnimationFrame(tick);
+
+  return {
+    cancel: () => {
+      cancelled = true;
+      cancelAnimationFrame(rafId);
+    },
+  };
 }
 
 function QuizCard({ children }: QuizCardProps) {
@@ -56,16 +72,16 @@ export default function Quiz() {
   const [isTyping, setIsTyping] = useState(false);
   const [optionsVisible, setOptionsVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const typingHandleRef = useRef<TypeHandle | undefined>(undefined);
 
   useEffect(() => {
     document.title = "心情測驗 | Midnight Moodvie";
     timerRef.current = setTimeout(() => {
-      typingTimerRef.current = typeText("點根線香，放鬆一下", setTitleText, undefined, typingTimerRef.current);
+      typingHandleRef.current = typeText("點根線香，放鬆一下", setTitleText, undefined, typingHandleRef.current);
     }, 100);
     return () => {
       if (timerRef.current !== null) clearTimeout(timerRef.current);
-      if (typingTimerRef.current !== undefined) clearInterval(typingTimerRef.current);
+      typingHandleRef.current?.cancel();
     };
   }, []);
 
@@ -74,14 +90,14 @@ export default function Quiz() {
       const q = QUESTIONS[step - 1];
       setIsTyping(true);
       setOptionsVisible(false);
-      typingTimerRef.current = typeText(
+      typingHandleRef.current = typeText(
         q.text,
         setQuestionText,
         () => {
           setIsTyping(false);
           setOptionsVisible(true);
         },
-        typingTimerRef.current,
+        typingHandleRef.current,
       );
     }
   }, [step]);

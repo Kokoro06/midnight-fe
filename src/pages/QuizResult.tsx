@@ -77,46 +77,117 @@ export default function QuizResult() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [sharing, setSharing] = useState(false);
+  const preBuiltFileRef = useRef<File | null>(null);
+
+  const buildShareFile = async (story: HTMLElement): Promise<File | null> => {
+    const imgs = Array.from(story.querySelectorAll("img"));
+    await Promise.all(
+      imgs.map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              const done = () => resolve();
+              img.addEventListener("load", done, { once: true });
+              img.addEventListener("error", done, { once: true });
+            }),
+      ),
+    );
+
+    const { default: html2canvas } = await import("html2canvas");
+    const canvas = await html2canvas(story, {
+      backgroundColor: "#0c0905",
+      scale: 1,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      width: 1080,
+      height: 1920,
+      windowWidth: 1080,
+      windowHeight: 1920,
+    });
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/png"),
+    );
+    if (!blob) return null;
+    return new File([blob], `moodie-${type}-story.png`, { type: "image/png" });
+  };
+
+  // Best-effort pre-build so iOS can keep user activation when sharing.
+  useEffect(() => {
+    preBuiltFileRef.current = null;
+    if (!movie) return;
+    const story = storyRef.current;
+    if (!story) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const file = await buildShareFile(story);
+        if (!cancelled && file) preBuiltFileRef.current = file;
+      } catch (err) {
+        console.warn("[QuizResult] pre-build failed (will rebuild on click):", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [movie, type]);
+
+  const downloadShareFile = (file: File) => {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const shareOrDownload = (file: File) => {
+    if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
+      return navigator
+        .share({ files: [file], title: `${data.title} | Midnight Moodvie` })
+        .catch((err: Error) => {
+          if (err.name === "AbortError") return;
+          console.error("[QuizResult] share failed, downloading:", err);
+          downloadShareFile(file);
+        });
+    }
+    downloadShareFile(file);
+    return Promise.resolve();
+  };
 
   const handleShare = async () => {
+    if (sharing) return;
+
+    // Fast path: pre-built file is ready. navigator.share() called synchronously
+    // here (no awaits before) so iOS transient user activation is preserved.
+    const preBuilt = preBuiltFileRef.current;
+    if (preBuilt) {
+      setSharing(true);
+      shareOrDownload(preBuilt).finally(() => setSharing(false));
+      return;
+    }
+
+    // Slow path: pre-build didn't finish. Build now. iOS may lose activation
+    // and fall back to download, but at least the user gets something.
     const story = storyRef.current;
-    if (!story || sharing) return;
+    if (!story) return;
     setSharing(true);
     try {
-      const imgs = Array.from(story.querySelectorAll("img"));
-      await Promise.all(
-        imgs.map((img) =>
-          img.complete && img.naturalWidth > 0
-            ? Promise.resolve()
-            : new Promise<void>((resolve) => {
-                img.addEventListener("load", () => resolve(), { once: true });
-                img.addEventListener("error", () => resolve(), { once: true });
-              }),
-        ),
-      );
-
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(story, {
-        backgroundColor: "#0c0905",
-        scale: 1,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        width: 1080,
-        height: 1920,
-        windowWidth: 1080,
-        windowHeight: 1920,
-      });
-
-      const dataUrl = canvas.toDataURL("image/png");
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `moodie-${type}-story.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const file = await buildShareFile(story);
+      if (!file) {
+        console.error("[QuizResult] toBlob returned null (canvas tainted?)");
+        return;
+      }
+      preBuiltFileRef.current = file;
+      await shareOrDownload(file);
     } catch (err) {
-      console.error("[QuizResult] story screenshot failed:", err);
+      console.error("[QuizResult] share build failed:", err);
     } finally {
       setSharing(false);
     }
@@ -286,9 +357,9 @@ export default function QuizResult() {
               <motion.button
                 className="qr-btn-share"
                 onClick={handleShare}
-                disabled={sharing}
-                whileHover={{ scale: sharing ? 1 : 1.02 }}
-                whileTap={{ scale: sharing ? 1 : 0.97 }}
+                disabled={sharing || !movie}
+                whileHover={{ scale: sharing || !movie ? 1 : 1.02 }}
+                whileTap={{ scale: sharing || !movie ? 1 : 0.97 }}
                 transition={{ duration: 0.15 }}
               >
                 {sharing ? "處理中…" : "分享我的結果"}

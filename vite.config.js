@@ -24,6 +24,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/img-proxy\/directus/, ''),
       },
+      '/api/mood': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: () => '/',
+      },
     },
   },
 })

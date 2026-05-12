@@ -96,7 +96,7 @@ function mapToMoodTags(directusTags: string[]): string[] {
     .map(([tag]) => tag);
 }
 
-const MOOD_MAPPER_URL = import.meta.env.VITE_MOOD_MAPPER_URL ?? "http://localhost:3001";
+const MOOD_MAPPER_URL = import.meta.env.VITE_MOOD_MAPPER_URL ?? "/api/mood";
 
 const FESTIVAL_FILMS: Film[] = [
   { title: "《末路相縫》 Sew Torn", poster: "img/poster5.jpg" },

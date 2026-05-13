@@ -68,3 +68,13 @@
   border-color: rgba(247,210,92,0.6);
   color: #f7d25c;
 }
+
+/* ─────────── Mobile 省電：移除背景影片，改純色底 ─────────── */
+@media (max-width: 767px) {
+  .notfound-bg {
+    display: none;
+  }
+  .notfound-page {
+    background: #1a1818;
+  }
+}

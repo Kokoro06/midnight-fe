@@ -802,11 +802,37 @@
 
 /* ─────────── Mobile 省電：移除背景影片 + blur，改純色背景 ─────────── */
 /* 兇手：<video> 全螢幕 autoplay loop + filter blur(8px) → 手機 GPU 持續解碼 + 重 shader */
+/* 二兇：卡片 ::before/::after blur(45-55px) + infinite smoke 動畫 → GPU 持續合成 */
 @media (max-width: 767px) {
   .qr-bg-video {
     display: none;
   }
   .qr-page {
     background: #1a1818;
+  }
+
+  /* 關閉卡片內部 smoke 偽元素的 blur + infinite 動畫 */
+  .qr-card-bg::before,
+  .qr-card-bg::after,
+  .qr-card-smoke::before {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  /* 關閉標題的無限 flicker */
+  .qr-title {
+    animation: none !important;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* 尊重使用者「減少動態」偏好：全頁停掉 infinite 動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .qr-card-bg::before,
+  .qr-card-bg::after,
+  .qr-card-smoke::before,
+  .qr-title,
+  .qr-skeleton {
+    animation: none !important;
   }
 }

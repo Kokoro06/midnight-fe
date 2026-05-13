@@ -1217,6 +1217,54 @@ input[type="text"] {
     min-width: unset;
   }
   #search-btn.is-tag-mode { padding: 14px 24px; }
+
+  /* ─────────── 省電：背景影片 + 巨型 blur backdrop + 七個 infinite smoke 全關 ─────────── */
+  /* 兇手 1：<video class="hero-bg"> autoplay loop + filter blur(14px) → GPU 持續解碼 */
+  .hero-bg { display: none; }
+  .hero { background: #1a1818; }
+
+  /* 兇手 2：搜尋列 backdrop-filter blur(28px) → 整螢幕高斯模糊重繪 */
+  .search-bar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  /* 兇手 3：six smoke ::before/::after blur(40-50px) + infinite smokeA/B/C animations */
+  .poster-showcase--festival::before,
+  .poster-showcase--festival::after,
+  .poster-showcase--yearly::before,
+  .poster-showcase--yearly::after,
+  .favorites-card::before,
+  .favorites-card::after,
+  .fav-smoke::before {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  /* 兇手 4：tag floaty 動畫 — 海量 tags 同時跳會吃 main thread + GPU */
+  .tag {
+    animation: none !important;
+  }
+
+  /* 兇手 5：標題裝飾 twinkle / softGlow */
+  .favorites-title .title-dot::before,
+  .favorites-title .title-dot::after {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  /* 兇手 6：site-title img 的 logoFlicker — drop-shadow 動畫每幀重繪 */
+  .site-title img {
+    animation: logoDropIn 1.8s ease-out forwards 1.0s !important;
+  }
+
+  /* synopsis modal backdrop blur 開啟時也吃 GPU，手機改純底色 */
+  .synopsis-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(10, 10, 14, 0.92);
+  }
 }
 
 @media (max-width: 360px) {
@@ -1314,6 +1362,22 @@ input[type="text"] {
   .btn-marquee { animation: none; }
   .scroll-down-hint { animation: none; opacity: 1; }
   .scroll-down-hint__pearl { animation: none; }
+
+  /* 額外覆蓋：所有 infinite smoke / glow / floaty / flicker 動畫 */
+  .poster-showcase--festival::before,
+  .poster-showcase--festival::after,
+  .poster-showcase--yearly::before,
+  .poster-showcase--yearly::after,
+  .favorites-card::before,
+  .favorites-card::after,
+  .fav-smoke::before,
+  .tag,
+  .favorites-title .title-dot::before,
+  .favorites-title .title-dot::after,
+  .site-title img,
+  .tags-loading {
+    animation: none !important;
+  }
 }
 
 /* ────────────────────────────────────────────────

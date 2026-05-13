@@ -454,3 +454,53 @@
 @media (max-width: 359px) {
   .scene { padding: 12px; }
 }
+
+/* ─────────── Mobile 省電：背景影片 + 卡片 blur/smoke + cardFloat 全關 ─────────── */
+/* 兇手：<video> 全螢幕 blur(8px) + ::before/::after blur(45-55px) + 三個 infinite smoke + cardFloat 7s + titleGlow */
+@media (max-width: 767px) {
+  .quiz-bg-video {
+    display: none;
+  }
+  .quiz-page {
+    background: #1a1818;
+  }
+
+  /* 卡片 float 動畫關閉 */
+  .quiz-card {
+    animation: none !important;
+  }
+
+  /* 卡片 smoke 偽元素：blur 拿掉、infinite 動畫關閉 */
+  .quiz-card-bg::before,
+  .quiz-card-bg::after,
+  .quiz-card-smoke::before {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  /* 標題 glow 關閉，保留靜態 text-shadow */
+  .scene-title {
+    animation: fadeInUp 0.8s ease-out 0.3s forwards !important;
+    text-shadow: 0 0 6px rgba(247, 210, 92, 0.6);
+  }
+
+  /* option 上的 backdrop-filter 也吃 GPU，換成純底色（保持視覺區隔） */
+  .quiz-option,
+  .scene-option {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* 尊重「減少動態」偏好：停掉所有 infinite 動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .quiz-card,
+  .quiz-card-bg::before,
+  .quiz-card-bg::after,
+  .quiz-card-smoke::before,
+  .scene-title,
+  .scene-question.typing-cursor::after {
+    animation: none !important;
+  }
+}

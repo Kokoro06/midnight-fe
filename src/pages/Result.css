@@ -558,3 +558,51 @@
     flex-shrink: 0;
   }
 }
+
+/* ─────────── Mobile 省電：背景影片 + 卡片 blur/smoke 全關 ─────────── */
+/* 兇手：<video> 全螢幕 blur(10px) + 卡片內 ::before/::after blur(45-55px) + infinite smoke + title flicker */
+@media (max-width: 767px) {
+  .result-bg-video {
+    display: none;
+  }
+  .result-page {
+    background: #1a1818;
+  }
+
+  /* 卡片 smoke 偽元素：blur 拿掉、infinite 動畫關閉 */
+  .card-bg::before,
+  .card-bg::after,
+  .card-smoke::before {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  /* 卡片本身的 float（即便目前 .card 走 fadeUpIn，仍防禦保留） */
+  .card {
+    animation: fadeUpIn 0.8s ease-out 0.1s both !important;
+  }
+
+  /* 標題 flicker 關閉 */
+  .card-title {
+    animation: fadeUpIn 0.8s ease-out 0.3s forwards !important;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
+  }
+
+  /* featured 卡片的 backdrop-filter 也吃 GPU，手機改純底色 */
+  .featured-movie {
+    backdrop-filter: none;
+    background: rgba(12, 9, 5, 0.9);
+  }
+}
+
+/* 尊重「減少動態」偏好：停掉所有 infinite 動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .card-bg::before,
+  .card-bg::after,
+  .card-smoke::before,
+  .card-title,
+  .featured-skeleton .featured-poster.skeleton-block,
+  .skeleton-line {
+    animation: none !important;
+  }
+}

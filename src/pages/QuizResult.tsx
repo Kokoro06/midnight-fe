@@ -11,14 +11,17 @@ import "./QuizResult.css";
 const POSTER_FALLBACK = "img/poster1.jpg";
 
 // Rewrite cross-origin poster URLs to same-origin via Vite dev proxy so html2canvas
-// can capture them without CORS taint. Dev-only; production needs its own proxy.
+// can capture them without CORS taint. Dev-only — vite.config.js server.proxy 不存在於 prod build；
+// 在 prod，TMDB 與 Directus 都會回 CORS header，html2canvas 直接 useCORS 即可。
 function storyPosterSrc(url: string): string {
   if (!url || url.startsWith("img/")) return url || POSTER_FALLBACK;
-  if (url.includes("image.tmdb.org")) {
-    return url.replace(/^https?:\/\/image\.tmdb\.org/, "/img-proxy/tmdb");
-  }
-  if (url.includes("localhost:8055")) {
-    return url.replace(/^https?:\/\/localhost:8055/, "/img-proxy/directus");
+  if (import.meta.env.DEV) {
+    if (url.includes("image.tmdb.org")) {
+      return url.replace(/^https?:\/\/image\.tmdb\.org/, "/img-proxy/tmdb");
+    }
+    if (url.includes("localhost:8055")) {
+      return url.replace(/^https?:\/\/localhost:8055/, "/img-proxy/directus");
+    }
   }
   return url;
 }
@@ -391,7 +394,7 @@ export default function QuizResult() {
               <p className="qrs-movie-heading">今晚就看這一部吧～</p>
               {movie && (
                 <>
-                  <img className="qrs-poster" src={storyPosterSrc(posterUrl(movie))} alt={movie.title} onError={handleImgError} />
+                  <img className="qrs-poster" src={storyPosterSrc(posterUrl(movie))} alt={movie.title} crossOrigin="anonymous" onError={handleImgError} />
                   <h3 className="qrs-movie-title">《{movie.title}》</h3>
                   {(movie.year > 0 || (movie.original_title && movie.original_title !== movie.title)) && (
                     <p className="qrs-movie-meta">

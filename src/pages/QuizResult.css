@@ -799,3 +799,14 @@
   padding: 4px 36px;
   border-radius: 999px;
 }
+
+/* ─────────── Mobile 省電：移除背景影片 + blur，改純色背景 ─────────── */
+/* 兇手：<video> 全螢幕 autoplay loop + filter blur(8px) → 手機 GPU 持續解碼 + 重 shader */
+@media (max-width: 767px) {
+  .qr-bg-video {
+    display: none;
+  }
+  .qr-page {
+    background: #1a1818;
+  }
+}

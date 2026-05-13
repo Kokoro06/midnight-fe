@@ -18,6 +18,11 @@ export const CHARACTER_IMAGES: Record<ResultKey, string> = {
 // 圖片載入失敗時的備用圖
 export const CHARACTER_IMAGE_FALLBACK = "img/character.png";
 
+// Cache-busting version：Caddyfile 對 *.png 套 immutable 30 天 cache，
+// 圖檔內容更新時 bump 此版本號讓行動裝置重抓
+const CHARACTER_IMAGE_VERSION = "2";
+
 export function characterImageUrl(key: ResultKey): string {
-  return CHARACTER_IMAGES[key] ?? CHARACTER_IMAGE_FALLBACK;
+  const path = CHARACTER_IMAGES[key] ?? CHARACTER_IMAGE_FALLBACK;
+  return `${path}?v=${CHARACTER_IMAGE_VERSION}`;
 }

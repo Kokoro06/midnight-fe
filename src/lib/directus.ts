@@ -32,6 +32,7 @@ export interface Movie {
   year: number
   poster: string | null
   poster_url: string | null
+  weight: number
   tags: MovieTag[]
   festival_awards: FestivalAward[]
 }
@@ -43,6 +44,7 @@ type DirectusMovie = {
   year: number
   poster: string | null
   poster_url: string | null
+  weight: number | null
   tags: Array<{ tags_id: Tag; weight: number }>
   festival_awards: FestivalAward[]
 }
@@ -60,6 +62,7 @@ function localFallback(tagNames: string[]): Movie[] {
       year: 0,
       poster: m.img,
       poster_url: null,
+      weight: 1.0,
       tags: m.tags.map((name, j) => ({ id: String(j), name, category: '', weight: 1.0 })),
       festival_awards: [],
     }))
@@ -74,7 +77,7 @@ export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
     const result = (await directus.request(
       readItems('movies', {
         ...query,
-        fields: ['id', 'title', 'original_title', 'year', 'poster', 'poster_url',
+        fields: ['id', 'title', 'original_title', 'year', 'poster', 'poster_url', 'weight',
           'tags.tags_id.id', 'tags.tags_id.name', 'tags.tags_id.category', 'tags.weight',
           'festival_awards.id', 'festival_awards.festival', 'festival_awards.year',
           'festival_awards.edition', 'festival_awards.award_category', 'festival_awards.result'],
@@ -89,16 +92,17 @@ export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
       year: m.year,
       poster: m.poster,
       poster_url: m.poster_url,
+      weight: m.weight ?? 1.0,
       tags: m.tags.map((t) => ({ ...t.tags_id, weight: t.weight ?? 1.0 })),
       festival_awards: m.festival_awards ?? [],
     }))
 
     if (movies.length > 0) {
-      // 與 Result 共用 seen 記憶：最近看過的排後面，其餘隨機
+      // 與 Result 共用 seen 記憶：最近看過的排後面，其餘隨機 × movie weight
       const seen = loadSeen()
       const now = Date.now()
       const sorted = movies
-        .map((m) => ({ m, key: -seenPenalty(seen.get(m.id), now) + Math.random() }))
+        .map((m) => ({ m, key: -seenPenalty(seen.get(m.id), now) + Math.random() * m.weight }))
         .sort((a, b) => b.key - a.key)
         .map((x) => x.m)
       markSeen(sorted.slice(0, 5).map((m) => m.id))
@@ -127,14 +131,14 @@ function pickFromPool<T>(sorted: T[], poolSize: number, count: number): T[] {
 }
 
 // 3 得獎 + 2 非得獎，不足時互補
-// jitter 0–1.0 打破同分排序；近期看過的片再扣 penalty（最高 3.0），7 天後完全恢復
+// score 乘 movie weight（admin 可調，預設 1.0）；jitter 0–1.0 打破同分；近期看過扣 penalty 最高 3.0、7 天後恢復
 function mixedSelect(scored: MovieWithScore[], awardCount = 3, plainCount = 2): MovieWithScore[] {
   const seen = loadSeen()
   const now = Date.now()
   const sortKey = new Map<MovieWithScore, number>()
   for (const m of scored) {
     const penalty = seenPenalty(seen.get(m.id), now)
-    sortKey.set(m, m.score + Math.random() * 1.0 - penalty)
+    sortKey.set(m, m.score * m.weight + Math.random() * 1.0 - penalty)
   }
 
   const hasWon = (m: MovieWithScore) => m.festival_awards.some((a) => a.result === 'won')
@@ -166,7 +170,7 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
     const result = (await directus.request(
       readItems('movies', {
         filter: { tags: { tags_id: { name: { _in: tagNames } } } },
-        fields: ['id', 'title', 'original_title', 'year', 'poster', 'poster_url',
+        fields: ['id', 'title', 'original_title', 'year', 'poster', 'poster_url', 'weight',
           'tags.tags_id.id', 'tags.tags_id.name', 'tags.tags_id.category', 'tags.weight',
           'festival_awards.id', 'festival_awards.festival', 'festival_awards.year',
           'festival_awards.edition', 'festival_awards.award_category', 'festival_awards.result'],
@@ -185,6 +189,7 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
       return {
         id: m.id, title: m.title, original_title: m.original_title,
         year: m.year, poster: m.poster, poster_url: m.poster_url,
+        weight: m.weight ?? 1.0,
         tags, festival_awards,
         score: tagScore,
       }

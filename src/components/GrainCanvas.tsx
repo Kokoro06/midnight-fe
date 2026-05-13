@@ -61,6 +61,13 @@ export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasP
       ctx!.globalAlpha = 1
     }
 
+    resize()
+    drawGrain()
+
+    // 手機 viewport：只畫一次靜態 grain，不開 RAF（避免 GPU/CPU 持續耗電發燙）
+    const isMobile = window.matchMedia('(max-width: 767px)').matches
+    if (isMobile) return
+
     let frame = 0
     let rafId: number
     function tick() {
@@ -68,9 +75,6 @@ export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasP
       if (frame % 3 === 0) drawGrain()
       rafId = requestAnimationFrame(tick)
     }
-
-    resize()
-    drawGrain()
     tick()
 
     const handleResize = () => { resize(); drawGrain() }

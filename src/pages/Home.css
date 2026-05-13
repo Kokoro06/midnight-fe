@@ -726,6 +726,19 @@ input[type="text"] {
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   z-index: 3;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.fp-item:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 4px;
+  border-radius: 12px;
 }
 
 .fp-item--0 { transform: rotate(-1.5deg); }
@@ -1301,4 +1314,123 @@ input[type="text"] {
   .btn-marquee { animation: none; }
   .scroll-down-hint { animation: none; opacity: 1; }
   .scroll-down-hint__pearl { animation: none; }
+}
+
+/* ────────────────────────────────────────────────
+   Synopsis Modal — 點海報觸發的電影簡介彈窗
+   ──────────────────────────────────────────────── */
+
+.synopsis-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(10, 10, 14, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.synopsis-modal {
+  position: relative;
+  display: flex;
+  gap: 28px;
+  width: min(720px, 100%);
+  max-height: 80vh;
+  padding: 32px;
+  background: rgba(28, 26, 34, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  cursor: default;
+  overflow-y: auto;
+}
+
+.synopsis-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.3s;
+  z-index: 2;
+}
+
+.synopsis-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+  color: #fff;
+}
+
+.synopsis-poster {
+  flex: 0 0 180px;
+  aspect-ratio: 2 / 3;
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6);
+}
+
+.synopsis-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 28px;
+}
+
+.synopsis-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-family: var(--font-mood);
+  color: rgba(205, 164, 21, 0.95);
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.synopsis-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .synopsis-modal {
+    flex-direction: column;
+    gap: 18px;
+    padding: 24px;
+    max-height: 85vh;
+  }
+
+  .synopsis-poster {
+    flex: 0 0 auto;
+    width: 50%;
+    align-self: center;
+  }
+
+  .synopsis-body {
+    padding-right: 0;
+  }
+
+  .synopsis-title {
+    font-size: 1.1rem;
+  }
+
+  .synopsis-text {
+    font-size: 0.9rem;
+  }
 }

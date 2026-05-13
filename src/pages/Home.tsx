@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGSAP } from "@gsap/react";
 import { useLenis } from "lenis/react";
+import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { readItems } from "@directus/sdk";
@@ -16,6 +17,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 interface Film {
   title: string;
   poster: string;
+  synopsis: string;
 }
 
 interface FavoritesCardProps {
@@ -99,33 +101,107 @@ function mapToMoodTags(directusTags: string[]): string[] {
 const MOOD_MAPPER_URL = import.meta.env.VITE_MOOD_MAPPER_URL ?? "/api/mood";
 
 const FESTIVAL_FILMS: Film[] = [
-  { title: "《末路相縫》 Sew Torn", poster: "img/poster5.jpg" },
-  { title: "《太空百合戰鬥姬》 Lesbian Space Princess", poster: "img/poster8.jpg" },
-  { title: "《錄影帶謀殺案》 Videodrome", poster: "img/poster7.jpg" },
-  { title: "《輕鬆生活》 Easy Living", poster: "img/poster6.jpg" },
+  {
+    title: "《末路相縫》 Sew Torn",
+    poster: "img/poster5.jpg",
+    synopsis: "經營慘澹的裁縫店繼承人，意外撞見兩名重傷男子與滿袋現金。她一時起貪念想藉此翻身，卻捲入殺手追殺與一連串失控事件，陷入良知與慾望的生死抉擇。",
+  },
+  {
+    title: "《太空百合戰鬥姬》 Lesbian Space Princess",
+    poster: "img/poster8.jpg",
+    synopsis: "失意的外星公主為了拯救被擄走的薄情前任，不得不覺醒體內的皇族神器。她深入險境展開一場宇宙大對決，在混亂與激戰中展現無敵女力。",
+  },
+  {
+    title: "《錄影帶謀殺案》 Videodrome",
+    poster: "img/poster7.jpg",
+    synopsis: "電視台老闆意外截獲一段充滿暴力虐殺的神祕頻段，不僅與女友陷入病態的迷戀，更導致身體產生詭異變異。隨著幻覺與現實模糊，他漸漸落入難以挽回的感官陷阱。",
+  },
+  {
+    title: "《輕鬆生活》 Easy Living",
+    poster: "img/poster6.jpg",
+    synopsis: "富有的銀行家一氣之下扔掉妻子昂貴的貂皮大衣，從天而降在一個女職員身上，導致每個人都誤以為她是富商的情婦，忙著討好巴結。隨之而來的誤會，讓劇情瘋狂超展開，推向意想不到的結局。",
+  },
 ];
 
 const YEARLY_FILMS: Film[] = [
-  { title: "《青春末世物語》 Happyend", poster: "img/poster1.jpg" },
-  { title: "《一百公尺》 100 Meters", poster: "img/poster2.jpg" },
-  { title: "《長椅小情歌》 At the Bench", poster: "img/poster4.jpg" },
-  { title: "《我家的事》 Family Matters", poster: "img/poster3.jpg" },
+  {
+    title: "《青春末世物語》 Happyend",
+    poster: "img/poster1.jpg",
+    synopsis: "在壓抑的東京校園，兩名叛逆高中生以音樂與惡作劇對抗體制。一場校方發起的監控反擊，卻意外引發學生思潮的動盪，讓兩人的友誼與未來在畢業前夕瀕臨失控。",
+  },
+  {
+    title: "《一百公尺》 100 Meters",
+    poster: "img/poster2.jpg",
+    synopsis: "兩名少年因田徑結緣，在追求速度的賽道上發展出亦敵亦友的深厚羈絆。多年後，當天才跑者陷入恐懼巔峰，昔日的同伴已蛻變為強大對手，再度於百米起點重逢。",
+  },
+  {
+    title: "《長椅小情歌》 At the Bench",
+    poster: "img/poster4.jpg",
+    synopsis: "河畔公園的一張長椅，靜靜見證了青梅竹馬的重逢、情侶的爭吵與姊妹的離合。透過各色人物的來去，在日常瑣事中勾勒出歲月流轉下的百味人生。",
+  },
+  {
+    title: "《我家的事》 Family Matters",
+    poster: "img/poster3.jpg",
+    synopsis: "橫跨台灣鄉間一年四季，透過一家四口各自的祕密與困境，細膩編織出平凡家庭的悲歡離合。當微光照進幽暗，那些隱藏在歡笑後的徬徨，終將化作動人的時光畫像。",
+  },
 ];
 
-function PosterShowcase({ films, variant }: { films: Film[]; variant: "festival" | "yearly" }) {
+function PosterShowcase({ films, variant, onPosterClick }: { films: Film[]; variant: "festival" | "yearly"; onPosterClick: (f: Film) => void }) {
   return (
     <div className={`poster-showcase poster-showcase--${variant}`}>
       <div className="fav-smoke" />
       <GrainCanvas className="fav-grain" />
       <div className="festival-posters">
         {films.map((f, i) => (
-          <div key={f.title} className={`fp-item fp-item--${i}`}>
+          <button
+            key={f.title}
+            type="button"
+            className={`fp-item fp-item--${i}`}
+            onClick={() => onPosterClick(f)}
+            aria-label={`查看 ${f.title} 簡介`}
+          >
             <div className="fp-img" style={{ backgroundImage: `url(${f.poster})` }} />
             <p className="fp-title">{f.title}</p>
-          </div>
+          </button>
         ))}
       </div>
     </div>
+  );
+}
+
+function SynopsisModal({ film, onClose }: { film: Film | null; onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      {film && (
+        <motion.div
+          className="synopsis-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          onClick={onClose}
+        >
+          <motion.div
+            className="synopsis-modal"
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${film.title} 簡介`}
+          >
+            <button type="button" className="synopsis-close" onClick={onClose} aria-label="關閉">×</button>
+            <div className="synopsis-poster" style={{ backgroundImage: `url(${film.poster})` }} />
+            <div className="synopsis-body">
+              <h3 className="synopsis-title">{film.title}</h3>
+              <p className="synopsis-text">{film.synopsis}</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -187,8 +263,16 @@ export default function Home() {
   const [pendingDirectusTags, setPendingDirectusTags] = useState<string[]>([]);
   const [reducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [showOverlay, setShowOverlay] = useState<boolean>(true);
+  const [modalFilm, setModalFilm] = useState<Film | null>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
   const lenis = useLenis();
+
+  useEffect(() => {
+    if (!modalFilm) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModalFilm(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [modalFilm]);
 
   useLenis(({ scroll }) => {
     const hint = scrollHintRef.current;
@@ -471,7 +555,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <PosterShowcase films={FESTIVAL_FILMS} variant="festival" />
+          <PosterShowcase films={FESTIVAL_FILMS} variant="festival" onPosterClick={setModalFilm} />
         </div>
       </section>
 
@@ -497,9 +581,11 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <PosterShowcase films={YEARLY_FILMS} variant="yearly" />
+          <PosterShowcase films={YEARLY_FILMS} variant="yearly" onPosterClick={setModalFilm} />
         </div>
       </section>
+
+      <SynopsisModal film={modalFilm} onClose={() => setModalFilm(null)} />
     </>
   );
 }

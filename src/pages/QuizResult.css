@@ -200,6 +200,12 @@
   .qr-character { width: 50%; }
 }
 
+/* 暗室捕夢人 B：因為有漏光效果，PNG 主體位置偏高 + 視覺重心不同，往下推貼齊黃線 */
+.qr-character--B,
+.qrs-character--B {
+  transform: translateY(14px);
+}
+
 /* ── Description box ── */
 .qr-desc-box {
   padding-top: 20px;

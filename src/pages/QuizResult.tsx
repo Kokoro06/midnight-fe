@@ -65,7 +65,7 @@ export default function QuizResult() {
   const navigate = useNavigate();
   const { key: locationKey } = useLocation();
 
-  const rawType = params.get("type");
+  const rawType = params.get("type")?.toUpperCase() ?? null;
   const type: ResultKey = isResultKey(rawType) ? rawType : FALLBACK_KEY;
   const data = CHARACTERS[type];
   const previewStory = params.get("preview") === "story";
@@ -246,14 +246,14 @@ export default function QuizResult() {
               {/* Header */}
               <div className="qr-header">
                 <div className="qr-header-text">
-                  <p className="qr-eyebrow">在影癮裡，你是——</p>
+                  <p className="qr-eyebrow">在影廳裡，你是——</p>
                   <h1 className="qr-title">
                     {data.title.slice(0, 2)}
                     <br />
                     {data.title.slice(2)}
                   </h1>
                 </div>
-                <img className="qr-character" src={characterImageUrl(type)} alt={data.title} onError={handleCharacterImgError} />
+                <img className={`qr-character qr-character--${type}`} src={characterImageUrl(type)} alt={data.title} onError={handleCharacterImgError} />
               </div>
 
               {/* Description box */}
@@ -376,14 +376,14 @@ export default function QuizResult() {
         <div className="qrs-inner">
           <div className="qrs-header">
             <div className="qrs-header-text">
-              <p className="qrs-eyebrow">在影癮裡，你是——</p>
+              <p className="qrs-eyebrow">在影廳裡，你是——</p>
               <h1 className="qrs-title">
                 {data.title.slice(0, 2)}
                 <br />
                 {data.title.slice(2)}
               </h1>
             </div>
-            <img className="qrs-character" src={characterImageUrl(type)} alt={data.title} onError={handleCharacterImgError} />
+            <img className={`qrs-character qrs-character--${type}`} src={characterImageUrl(type)} alt={data.title} onError={handleCharacterImgError} />
           </div>
 
           <div className="qrs-movie-row">

@@ -149,6 +149,7 @@
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
+  padding-right: 40px;
 }
 
 .info-nav-btn {
@@ -188,6 +189,21 @@
 
 .scroll-pause-btn:hover { background: rgba(0,0,0,0.55); color: #fff; }
 
+.month-copyright {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100;
+  margin: 0;
+  max-width: 60vw;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  pointer-events: none;
+}
+
 .month-page.detailed-mode .floating-title {
   top: 15%;
   left: 50px;
@@ -204,12 +220,12 @@
 
 .month-page.detailed-mode {
   overflow: hidden;
-  touch-action: none;
 }
 
 .info-panel {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding-bottom: max(44px, calc(env(safe-area-inset-bottom) + 16px));
 }
 

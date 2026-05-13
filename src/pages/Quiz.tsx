@@ -149,7 +149,7 @@ export default function Quiz() {
             </div>
             <h1 className="scene-title">{titleText}</h1>
             <p className="scene-subtitle">你是哪款！電影地縛靈 👻</p>
-            <p className="scene-preview">共 {TOTAL} 題，約需 3 分鐘</p>
+            <p className="scene-preview">共 {TOTAL} 題，大約一首歌的時間</p>
             <div className="quiz-divider" style={{ marginBottom: "32px" }} />
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <motion.button

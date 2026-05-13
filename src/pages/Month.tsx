@@ -223,6 +223,10 @@ export default function Month() {
           <span>點擊海報可看介紹</span>
         </div>
       </div>
+
+      <p className="month-copyright">
+        所有海報與劇照圖，圖源皆為官方所有，僅作為學生畢制作品需求用，無營利目的。
+      </p>
     </div>
   )
 }

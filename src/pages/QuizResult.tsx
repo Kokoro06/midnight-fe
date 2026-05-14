@@ -10,25 +10,6 @@ import "./QuizResult.css";
 
 const POSTER_FALLBACK = "img/poster1.jpg";
 
-// 離屏 story img 用獨立 URL，避免與可見 img 共用瀏覽器 image cache。
-// 可見 img 沒帶 crossOrigin（避免 DEV 跨 port 跨來源檢查），若兩者共用快取，
-// 離屏 img 雖標 crossOrigin="anonymous" 也會拿到無 CORS 標記的快取版 →
-// html2canvas 會 taint canvas → toBlob 回 null → 分享失敗。
-// DEV：走 Vite proxy 變同源；PROD：query 加 _share=1 拆 cache key。
-function storyPosterSrc(url: string): string {
-  if (!url || url.startsWith("img/")) return url || POSTER_FALLBACK;
-  if (import.meta.env.DEV) {
-    if (url.includes("image.tmdb.org")) {
-      return url.replace(/^https?:\/\/image\.tmdb\.org/, "/img-proxy/tmdb");
-    }
-    if (url.includes("localhost:8055")) {
-      return url.replace(/^https?:\/\/localhost:8055/, "/img-proxy/directus");
-    }
-    return url;
-  }
-  return url + (url.includes("?") ? "&" : "?") + "_share=1";
-}
-
 const TOP_AWARD_PRIORITY = [
   "金棕櫚獎",
   "金熊獎",
@@ -83,38 +64,7 @@ export default function QuizResult() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [sharing, setSharing] = useState(false);
-  const [posterBlobUrl, setPosterBlobUrl] = useState<string | null>(null);
   const preBuiltFileRef = useRef<File | null>(null);
-
-  // 預先把 story 海報抓成 blob URL，當作 .qrs-poster 的 src。
-  // 這樣 html2canvas 看到的永遠是同源 blob，避開 TMDB 沒送 Vary:Origin
-  // 造成的 CORS cache 污染（可見 img 無 crossOrigin 先載入後，離屏 img
-  // 即使帶 _share=1 cache buster 也可能命中 opaque response）。
-  useEffect(() => {
-    setPosterBlobUrl(null);
-    if (!movie) return;
-    const url = storyPosterSrc(posterUrl(movie));
-    if (url.startsWith("img/")) return;
-
-    let cancelled = false;
-    let createdUrl: string | null = null;
-    fetch(url, { mode: "cors", credentials: "omit" })
-      .then(async (resp) => {
-        if (!resp.ok) throw new Error(`poster fetch not ok: ${resp.status} ${resp.type}`);
-        const blob = await resp.blob();
-        if (cancelled) return;
-        createdUrl = URL.createObjectURL(blob);
-        setPosterBlobUrl(createdUrl);
-      })
-      .catch((err) => {
-        console.warn("[QuizResult] poster pre-fetch failed:", url, err);
-      });
-
-    return () => {
-      cancelled = true;
-      if (createdUrl) URL.revokeObjectURL(createdUrl);
-    };
-  }, [movie]);
 
   const buildShareFile = async (story: HTMLElement): Promise<File | null> => {
     const imgs = Array.from(story.querySelectorAll("img"));
@@ -184,7 +134,7 @@ export default function QuizResult() {
       else window.clearTimeout(handle);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [movie, type, posterBlobUrl]);
+  }, [movie, type]);
 
   const downloadShareFile = (file: File) => {
     const url = URL.createObjectURL(file);
@@ -441,7 +391,7 @@ export default function QuizResult() {
               <p className="qrs-movie-heading">今晚就看這一部吧～</p>
               {movie && (
                 <>
-                  <img className="qrs-poster" src={posterBlobUrl ?? storyPosterSrc(posterUrl(movie))} alt={movie.title} crossOrigin="anonymous" onError={handleImgError} />
+                  <img className="qrs-poster" src={posterUrl(movie)} alt={movie.title} crossOrigin="anonymous" onError={handleImgError} />
                   <h3 className="qrs-movie-title">《{movie.title}》</h3>
                   {(movie.year > 0 || (movie.original_title && movie.original_title !== movie.title)) && (
                     <p className="qrs-movie-meta">

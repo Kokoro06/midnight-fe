@@ -575,7 +575,6 @@
   display: flex;
   align-items: stretch;
   min-height: 360px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .qrs-header-text {

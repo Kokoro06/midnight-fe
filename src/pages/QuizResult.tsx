@@ -10,9 +10,11 @@ import "./QuizResult.css";
 
 const POSTER_FALLBACK = "img/poster1.jpg";
 
-// Rewrite cross-origin poster URLs to same-origin via Vite dev proxy so html2canvas
-// can capture them without CORS taint. Dev-only — vite.config.js server.proxy 不存在於 prod build；
-// 在 prod，TMDB 與 Directus 都會回 CORS header，html2canvas 直接 useCORS 即可。
+// 離屏 story img 用獨立 URL，避免與可見 img 共用瀏覽器 image cache。
+// 可見 img 沒帶 crossOrigin（避免 DEV 跨 port 跨來源檢查），若兩者共用快取，
+// 離屏 img 雖標 crossOrigin="anonymous" 也會拿到無 CORS 標記的快取版 →
+// html2canvas 會 taint canvas → toBlob 回 null → 分享失敗。
+// DEV：走 Vite proxy 變同源；PROD：query 加 _share=1 拆 cache key。
 function storyPosterSrc(url: string): string {
   if (!url || url.startsWith("img/")) return url || POSTER_FALLBACK;
   if (import.meta.env.DEV) {
@@ -22,8 +24,9 @@ function storyPosterSrc(url: string): string {
     if (url.includes("localhost:8055")) {
       return url.replace(/^https?:\/\/localhost:8055/, "/img-proxy/directus");
     }
+    return url;
   }
-  return url;
+  return url + (url.includes("?") ? "&" : "?") + "_share=1";
 }
 
 const TOP_AWARD_PRIORITY = [

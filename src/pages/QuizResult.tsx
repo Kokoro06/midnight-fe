@@ -86,6 +86,37 @@ export default function QuizResult() {
   const preBuiltFileRef = useRef<File | null>(null);
 
   const buildShareFile = async (story: HTMLElement): Promise<File | null> => {
+    // 海報走 fetch→blob→ObjectURL，繞開 image cache（可見 img 無 crossOrigin、
+    // 離屏 img 有 crossOrigin 會打架）以及共用的 onError fallback（一旦 broken
+    // 就把 src 改成 poster1.jpg，html2canvas 會抓到 fallback）。
+    // 從 movie state 重取 URL，不依賴 img.src（src 可能已被 onError 改寫）。
+    const created: string[] = [];
+    if (movie) {
+      const poster = story.querySelector<HTMLImageElement>(".qrs-poster");
+      if (poster) {
+        try {
+          const resp = await fetch(posterUrl(movie), {
+            mode: "cors",
+            credentials: "omit",
+            cache: "force-cache",
+          });
+          if (resp.ok) {
+            const blob = await resp.blob();
+            const objUrl = URL.createObjectURL(blob);
+            created.push(objUrl);
+            await new Promise<void>((resolve) => {
+              const done = () => resolve();
+              poster.addEventListener("load", done, { once: true });
+              poster.addEventListener("error", done, { once: true });
+              poster.src = objUrl;
+            });
+          }
+        } catch (err) {
+          console.warn("[QuizResult] poster fetch failed:", err);
+        }
+      }
+    }
+
     const imgs = Array.from(story.querySelectorAll("img"));
     await Promise.all(
       imgs.map((img) =>
@@ -111,6 +142,8 @@ export default function QuizResult() {
       windowWidth: 1080,
       windowHeight: 1920,
     });
+
+    created.forEach((u) => URL.revokeObjectURL(u));
 
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, "image/png"),

@@ -62,11 +62,10 @@
 
 .info-panel {
   position: absolute;
-  top: 56%;
+  top: 28%;
+  bottom: 60px;
   right: 40px;
-  transform: translateY(-50%);
   width: 52%;
-  max-height: 58%;
   background-color: rgba(60,60,60,0.25);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

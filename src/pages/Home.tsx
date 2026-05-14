@@ -18,6 +18,7 @@ interface Film {
   title: string;
   poster: string;
   synopsis: string;
+  meta: string;
 }
 
 interface FavoritesCardProps {
@@ -104,21 +105,25 @@ const FESTIVAL_FILMS: Film[] = [
   {
     title: "《末路相縫》 Sew Torn",
     poster: "img/poster5.jpg",
+    meta: "美國、瑞士 America、Switzerland｜2024｜100 min｜佛萊迪麥可唐納德",
     synopsis: "經營慘澹的裁縫店繼承人，意外撞見兩名重傷男子與滿袋現金。她一時起貪念想藉此翻身，卻捲入殺手追殺與一連串失控事件，陷入良知與慾望的生死抉擇。",
   },
   {
     title: "《太空百合戰鬥姬》 Lesbian Space Princess",
     poster: "img/poster8.jpg",
+    meta: "澳洲 Australia｜2025｜87 min｜艾瑪赫夫霍布斯",
     synopsis: "失意的外星公主為了拯救被擄走的薄情前任，不得不覺醒體內的皇族神器。她深入險境展開一場宇宙大對決，在混亂與激戰中展現無敵女力。",
   },
   {
     title: "《錄影帶謀殺案》 Videodrome",
     poster: "img/poster7.jpg",
+    meta: "加拿大 Canada｜1983｜87 min｜大衛柯能堡",
     synopsis: "電視台老闆意外截獲一段充滿暴力虐殺的神祕頻段，不僅與女友陷入病態的迷戀，更導致身體產生詭異變異。隨著幻覺與現實模糊，他漸漸落入難以挽回的感官陷阱。",
   },
   {
     title: "《輕鬆生活》 Easy Living",
     poster: "img/poster6.jpg",
+    meta: "美國 America｜1937｜88 min｜米契爾萊森",
     synopsis: "富有的銀行家一氣之下扔掉妻子昂貴的貂皮大衣，從天而降在一個女職員身上，導致每個人都誤以為她是富商的情婦，忙著討好巴結。隨之而來的誤會，讓劇情瘋狂超展開，推向意想不到的結局。",
   },
 ];
@@ -127,21 +132,25 @@ const YEARLY_FILMS: Film[] = [
   {
     title: "《青春末世物語》 Happyend",
     poster: "img/poster1.jpg",
+    meta: "日本 Japan｜2025｜113 min｜空音央",
     synopsis: "在壓抑的東京校園，兩名叛逆高中生以音樂與惡作劇對抗體制。一場校方發起的監控反擊，卻意外引發學生思潮的動盪，讓兩人的友誼與未來在畢業前夕瀕臨失控。",
   },
   {
     title: "《一百公尺》 100 Meters",
     poster: "img/poster2.jpg",
+    meta: "日本 Japan｜2025｜106 min｜岩井澤健治",
     synopsis: "兩名少年因田徑結緣，在追求速度的賽道上發展出亦敵亦友的深厚羈絆。多年後，當天才跑者陷入恐懼巔峰，昔日的同伴已蛻變為強大對手，再度於百米起點重逢。",
   },
   {
     title: "《長椅小情歌》 At the Bench",
     poster: "img/poster4.jpg",
+    meta: "日本 Japan｜2025｜86 min｜奧山由之",
     synopsis: "河畔公園的一張長椅，靜靜見證了青梅竹馬的重逢、情侶的爭吵與姊妹的離合。透過各色人物的來去，在日常瑣事中勾勒出歲月流轉下的百味人生。",
   },
   {
     title: "《我家的事》 Family Matters",
     poster: "img/poster3.jpg",
+    meta: "台灣 Taiwan｜2025｜99 min｜潘客印",
     synopsis: "橫跨台灣鄉間一年四季，透過一家四口各自的祕密與困境，細膩編織出平凡家庭的悲歡離合。當微光照進幽暗，那些隱藏在歡笑後的徬徨，終將化作動人的時光畫像。",
   },
 ];
@@ -196,6 +205,7 @@ function SynopsisModal({ film, onClose }: { film: Film | null; onClose: () => vo
             <div className="synopsis-poster" style={{ backgroundImage: `url(${film.poster})` }} />
             <div className="synopsis-body">
               <h3 className="synopsis-title">{film.title}</h3>
+              <p className="synopsis-meta">{film.meta}</p>
               <p className="synopsis-text">{film.synopsis}</p>
             </div>
           </motion.div>

@@ -13,7 +13,7 @@
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  filter: blur(8px) brightness(0.5) saturate(0.35);
+  filter: brightness(0.5) saturate(0.35);
 }
 
 .qr-scroll {
@@ -63,14 +63,12 @@
   width: 75%; height: 80%;
   top: -20%; right: -15%;
   background: radial-gradient(circle, rgba(165,58,8,0.82) 0%, rgba(110,30,5,0.45) 45%, transparent 72%);
-  animation: qrSmokeA 14s ease-in-out infinite alternate;
 }
 
 .qr-card-bg::after {
   width: 65%; height: 70%;
   bottom: -20%; left: -10%;
   background: radial-gradient(circle, rgba(130,42,6,0.7) 0%, rgba(80,20,4,0.4) 50%, transparent 72%);
-  animation: qrSmokeB 18s ease-in-out infinite alternate;
 }
 
 @keyframes qrSmokeA {
@@ -103,7 +101,6 @@
   border-radius: 50%;
   filter: blur(45px);
   background: radial-gradient(circle, rgba(95,28,5,0.45) 0%, transparent 70%);
-  animation: qrSmokeC 10s ease-in-out infinite alternate;
 }
 
 @keyframes qrSmokeC {
@@ -272,12 +269,22 @@
 
 .qr-festival-badges {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
   gap: 6px;
   width: 100%;
   margin-bottom: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  padding: 0 4px;
 }
+
+.qr-festival-badges::-webkit-scrollbar { display: none; }
 
 .qr-festival-badge {
   display: inline-block;
@@ -288,8 +295,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .qr-festival-badge--won {
@@ -502,6 +509,14 @@
   color: #fff;
   overflow: hidden;
   pointer-events: none;
+}
+
+/* 桌機 scroll lag 修復：非預覽模式下，瀏覽器跳過 off-screen story 的 paint/layout。
+   兩層 blur(120px) radial gradient 原本即使在 -99999px 也會持續 compositing。
+   html2canvas 不依賴瀏覽器 paint，直接從 DOM/computed styles 重繪，所以 capture 不受影響。 */
+.qr-story:not(.qr-story--preview) {
+  content-visibility: auto;
+  contain-intrinsic-size: 1080px 1920px;
 }
 
 /* Dev preview: ?preview=story lifts the story DOM on-screen, scaled to fit viewport.

@@ -2,9 +2,10 @@ import { useEffect, useRef } from 'react'
 
 interface GrainCanvasProps {
   className?: string
+  animate?: boolean
 }
 
-export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasProps) {
+export default function GrainCanvas({ className = 'grain-canvas', animate = true }: GrainCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -21,8 +22,8 @@ export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasP
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const PIXEL_SIZE = 1
-    const DENSITY = 0.18
+    const PIXEL_SIZE = 2
+    const DENSITY = 0.12
 
     function resize() {
       canvas!.width = card!.offsetWidth
@@ -64,15 +65,15 @@ export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasP
     resize()
     drawGrain()
 
-    // 手機 viewport：只畫一次靜態 grain，不開 RAF（避免 GPU/CPU 持續耗電發燙）
+    // 手機 viewport 或 animate=false：只畫一次靜態 grain，不開 RAF
     const isMobile = window.matchMedia('(max-width: 767px)').matches
-    if (isMobile) return
+    if (isMobile || !animate) return
 
     let frame = 0
     let rafId: number
     function tick() {
       frame++
-      if (frame % 3 === 0) drawGrain()
+      if (frame % 12 === 0) drawGrain()
       rafId = requestAnimationFrame(tick)
     }
     tick()
@@ -83,7 +84,7 @@ export default function GrainCanvas({ className = 'grain-canvas' }: GrainCanvasP
       cancelAnimationFrame(rafId)
       window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [animate])
 
   return <canvas ref={canvasRef} className={className} />
 }

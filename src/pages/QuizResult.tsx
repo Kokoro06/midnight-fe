@@ -117,6 +117,8 @@ export default function QuizResult() {
   };
 
   // Best-effort pre-build so iOS can keep user activation when sharing.
+  // 包 requestIdleCallback：html2canvas 渲染 1080×1920 會占用主執行緒數百 ms，
+  // 若 movie 一載入就立刻跑，使用者剛好想 scroll 就會卡。改在瀏覽器 idle 時跑。
   useEffect(() => {
     preBuiltFileRef.current = null;
     if (!movie) return;
@@ -124,17 +126,28 @@ export default function QuizResult() {
     if (!story) return;
 
     let cancelled = false;
-    (async () => {
+    const run = async () => {
       try {
         const file = await buildShareFile(story);
         if (!cancelled && file) preBuiltFileRef.current = file;
       } catch (err) {
         console.warn("[QuizResult] pre-build failed (will rebuild on click):", err);
       }
-    })();
+    };
+
+    const ric = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+    const cic = (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback;
+    let handle: number;
+    if (ric) {
+      handle = ric(() => { void run(); }, { timeout: 3000 });
+    } else {
+      handle = window.setTimeout(() => { void run(); }, 200);
+    }
 
     return () => {
       cancelled = true;
+      if (ric && cic) cic(handle);
+      else window.clearTimeout(handle);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [movie, type]);
@@ -244,7 +257,7 @@ export default function QuizResult() {
           <section className="qr-card" ref={cardRef}>
             <div className="qr-card-bg" />
             <div className="qr-card-smoke" />
-            <GrainCanvas />
+            <GrainCanvas animate={false} />
             <div className="qr-card-inner">
               {/* Header */}
               <div className="qr-header">

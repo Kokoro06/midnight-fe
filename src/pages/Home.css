@@ -1464,6 +1464,14 @@ input[type="text"] {
   line-height: 1.4;
 }
 
+.synopsis-meta {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(205, 164, 21, 0.7);
+  letter-spacing: 0.04em;
+}
+
 .synopsis-text {
   margin: 0;
   font-size: 0.95rem;
@@ -1492,6 +1500,10 @@ input[type="text"] {
 
   .synopsis-title {
     font-size: 1.1rem;
+  }
+
+  .synopsis-meta {
+    font-size: 0.78rem;
   }
 
   .synopsis-text {

@@ -4,38 +4,10 @@ import { motion } from "framer-motion";
 import GrainCanvas from "../components/GrainCanvas";
 import TopNav from "../components/TopNav";
 import { getMoviesByMultipleTags, posterUrl, type MovieWithScore, type FestivalAward } from "../lib/directus";
+import { topAward, topAwards } from "../lib/awards";
 import "./Result.css";
 
 const POSTER_FALLBACK = "img/poster1.jpg";
-
-const TOP_AWARD_PRIORITY = [
-  "金棕櫚獎",
-  "金熊獎",
-  "金獅獎",
-  "最佳劇情長片",
-  "最佳影片",
-  "評審團大獎",
-  "銀熊獎-評審團大獎",
-  "銀獅獎-評審團大獎",
-  "評審團獎",
-  "銀熊獎-最佳導演",
-  "銀獅獎-最佳導演",
-  "最佳導演",
-];
-
-function topAward(awards: FestivalAward[]): FestivalAward | null {
-  if (!awards || awards.length === 0) return null;
-  const won = awards.filter((a) => a.result === "won");
-  const pool = won.length > 0 ? won : awards;
-  return pool.slice().sort((a, b) => {
-    const pa = TOP_AWARD_PRIORITY.indexOf(a.award_category);
-    const pb = TOP_AWARD_PRIORITY.indexOf(b.award_category);
-    const priorityA = pa === -1 ? 999 : pa;
-    const priorityB = pb === -1 ? 999 : pb;
-    if (priorityA !== priorityB) return priorityA - priorityB;
-    return b.year - a.year;
-  })[0];
-}
 
 const FestivalBadge = ({ award }: { award: FestivalAward }) => (
   <span className={`festival-badge festival-badge--${award.result}`}>
@@ -98,7 +70,11 @@ export default function Result() {
   );
 
   const PrimaryMovieCard = ({ m }: { m: MovieWithScore }) => {
-    const award = topAward(m.festival_awards);
+    const awards = topAwards(m.festival_awards, 3);
+    const [expanded, setExpanded] = useState(false);
+    useEffect(() => {
+      setExpanded(false);
+    }, [m.id]);
     return (
       <motion.div
         className="primary-movie-card"
@@ -108,12 +84,46 @@ export default function Result() {
       >
         <img className="primary-poster" src={posterUrl(m)} alt={m.title} onError={handleImgError} />
         <div className="primary-info">
-          {award && <FestivalBadge award={award} />}
+          {awards.length > 0 && (
+            <div className="festival-row" role="list" aria-label="影展得獎紀錄">
+              {awards.map((a) => (
+                <FestivalBadge key={a.id} award={a} />
+              ))}
+            </div>
+          )}
           <h3 className="primary-title">{m.title}</h3>
           {m.original_title && m.original_title !== m.title && (
             <p className="primary-original">{m.original_title}</p>
           )}
           {m.year > 0 && <span className="primary-year">{m.year}</span>}
+          {m.overview && (
+            <p
+              className={`primary-overview ${expanded ? "is-expanded" : ""}`}
+              onClick={() => setExpanded((v) => !v)}
+              role="button"
+              tabIndex={0}
+              aria-expanded={expanded}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setExpanded((v) => !v);
+                }
+              }}
+            >
+              {m.overview}
+            </p>
+          )}
+          {m.justwatch_url && (
+            <a
+              className="primary-watch"
+              href={m.justwatch_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`在 JustWatch 上查看《${m.title}》的觀看平台（新分頁開啟）`}
+            >
+              哪裡看 <span aria-hidden="true">↗</span>
+            </a>
+          )}
         </div>
       </motion.div>
     );

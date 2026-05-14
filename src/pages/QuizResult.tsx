@@ -83,49 +83,44 @@ export default function QuizResult() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [sharing, setSharing] = useState(false);
+  const [posterBlobUrl, setPosterBlobUrl] = useState<string | null>(null);
   const preBuiltFileRef = useRef<File | null>(null);
 
-  const buildShareFile = async (story: HTMLElement): Promise<File | null> => {
-    // 海報走 fetch→blob→ObjectURL，繞開 image cache（可見 img 無 crossOrigin、
-    // 離屏 img 有 crossOrigin 會打架）以及共用的 onError fallback（一旦 broken
-    // 就把 src 改成 poster1.jpg，html2canvas 會抓到 fallback）。
-    // 從 movie state 重取 URL，不依賴 img.src（src 可能已被 onError 改寫）。
-    //
-    // ⚠️ fetch 必須走 storyPosterSrc() 的「帶 _share=1」URL，跟離屏 img 同 cache key。
-    // 否則命中可見 img 留下的 no-cors cache 項，cors-mode fetch 會拿到 opaque
-    // response（resp.ok=false），跳過覆寫 → story 海報維持 poster1.jpg fallback。
-    const created: string[] = [];
-    if (movie) {
-      const poster = story.querySelector<HTMLImageElement>(".qrs-poster");
-      if (poster) {
-        try {
-          const resp = await fetch(storyPosterSrc(posterUrl(movie)), {
-            mode: "cors",
-            credentials: "omit",
-          });
-          if (resp.ok) {
-            const blob = await resp.blob();
-            const objUrl = URL.createObjectURL(blob);
-            created.push(objUrl);
-            await new Promise<void>((resolve) => {
-              const done = () => resolve();
-              poster.addEventListener("load", done, { once: true });
-              poster.addEventListener("error", done, { once: true });
-              poster.src = objUrl;
-            });
-          } else {
-            console.warn("[QuizResult] poster fetch not ok:", resp.status, resp.type);
-          }
-        } catch (err) {
-          console.warn("[QuizResult] poster fetch failed:", err);
-        }
-      }
-    }
+  // 預先把 story 海報抓成 blob URL，當作 .qrs-poster 的 src。
+  // 這樣 html2canvas 看到的永遠是同源 blob，避開 TMDB 沒送 Vary:Origin
+  // 造成的 CORS cache 污染（可見 img 無 crossOrigin 先載入後，離屏 img
+  // 即使帶 _share=1 cache buster 也可能命中 opaque response）。
+  useEffect(() => {
+    setPosterBlobUrl(null);
+    if (!movie) return;
+    const url = storyPosterSrc(posterUrl(movie));
+    if (url.startsWith("img/")) return;
 
+    let cancelled = false;
+    let createdUrl: string | null = null;
+    fetch(url, { mode: "cors", credentials: "omit" })
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error(`poster fetch not ok: ${resp.status} ${resp.type}`);
+        const blob = await resp.blob();
+        if (cancelled) return;
+        createdUrl = URL.createObjectURL(blob);
+        setPosterBlobUrl(createdUrl);
+      })
+      .catch((err) => {
+        console.warn("[QuizResult] poster pre-fetch failed:", url, err);
+      });
+
+    return () => {
+      cancelled = true;
+      if (createdUrl) URL.revokeObjectURL(createdUrl);
+    };
+  }, [movie]);
+
+  const buildShareFile = async (story: HTMLElement): Promise<File | null> => {
     const imgs = Array.from(story.querySelectorAll("img"));
     await Promise.all(
       imgs.map((img) =>
-        img.complete
+        img.complete && img.naturalWidth > 0
           ? Promise.resolve()
           : new Promise<void>((resolve) => {
               const done = () => resolve();
@@ -147,8 +142,6 @@ export default function QuizResult() {
       windowWidth: 1080,
       windowHeight: 1920,
     });
-
-    created.forEach((u) => URL.revokeObjectURL(u));
 
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, "image/png"),
@@ -191,7 +184,7 @@ export default function QuizResult() {
       else window.clearTimeout(handle);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [movie, type]);
+  }, [movie, type, posterBlobUrl]);
 
   const downloadShareFile = (file: File) => {
     const url = URL.createObjectURL(file);
@@ -207,7 +200,7 @@ export default function QuizResult() {
   const shareOrDownload = (file: File) => {
     if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
       return navigator
-        .share({ files: [file] })
+        .share({ files: [file], title: "", text: "" })
         .catch((err: Error) => {
           if (err.name === "AbortError") return;
           console.error("[QuizResult] share failed, downloading:", err);
@@ -448,7 +441,7 @@ export default function QuizResult() {
               <p className="qrs-movie-heading">今晚就看這一部吧～</p>
               {movie && (
                 <>
-                  <img className="qrs-poster" src={storyPosterSrc(posterUrl(movie))} alt={movie.title} crossOrigin="anonymous" onError={handleImgError} />
+                  <img className="qrs-poster" src={posterBlobUrl ?? storyPosterSrc(posterUrl(movie))} alt={movie.title} crossOrigin="anonymous" onError={handleImgError} />
                   <h3 className="qrs-movie-title">《{movie.title}》</h3>
                   {(movie.year > 0 || (movie.original_title && movie.original_title !== movie.title)) && (
                     <p className="qrs-movie-meta">

@@ -511,14 +511,6 @@
   pointer-events: none;
 }
 
-/* 桌機 scroll lag 修復：非預覽模式下，瀏覽器跳過 off-screen story 的 paint/layout。
-   兩層 blur(120px) radial gradient 原本即使在 -99999px 也會持續 compositing。
-   html2canvas 不依賴瀏覽器 paint，直接從 DOM/computed styles 重繪，所以 capture 不受影響。 */
-.qr-story:not(.qr-story--preview) {
-  content-visibility: auto;
-  contain-intrinsic-size: 1080px 1920px;
-}
-
 /* Dev preview: ?preview=story lifts the story DOM on-screen, scaled to fit viewport.
    Uses HMR-friendly CSS only — edits to .qrs-* update live in the browser. */
 .qr-story--preview {

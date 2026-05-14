@@ -12,6 +12,7 @@ import Effect from './pages/Effect'
 import Result from './pages/Result'
 import QuizResult from './pages/QuizResult'
 import NotFound from './pages/NotFound'
+import SiteFooter from './components/SiteFooter'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -91,6 +92,7 @@ export default function App() {
           <GSAPLenisSync />
           <ScrollToTop />
           <AnimatedRoutes />
+          <SiteFooter />
         </BrowserRouter>
       </ReactLenis>
     </MotionConfig>

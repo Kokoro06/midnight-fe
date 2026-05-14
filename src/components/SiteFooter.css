@@ -1,0 +1,26 @@
+.site-footer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 28px 24px;
+  background: #000;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+}
+
+.site-footer-copy {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 22px 16px;
+  }
+
+  .site-footer-copy {
+    font-size: 11px;
+  }
+}

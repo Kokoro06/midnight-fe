@@ -170,11 +170,16 @@
   text-align: center;
 }
 
+.quiz-card:has(.quiz-step-header) .quiz-card-inner {
+  min-height: 520px;
+}
+
 @media (min-width: 600px) {
   .quiz-card { max-width: 520px; }
   .scene { padding: 24px; }
   .scene-question { font-size: 20px; }
   .quiz-card-inner { padding: 44px 48px 40px; }
+  .quiz-card:has(.quiz-step-header) .quiz-card-inner { min-height: 540px; }
 }
 
 /* ── Intro scene elements ── */

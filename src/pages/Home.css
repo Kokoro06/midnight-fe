@@ -775,6 +775,17 @@ input[type="text"] {
   color: rgba(74, 176, 255, 0.8);
 }
 
+.fp-meta {
+  font-size: 0.75rem;
+  color: rgba(220, 220, 220, 0.62);
+  text-align: center;
+  margin: 4px 0 0;
+  font-family: var(--font-mood);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  padding: 0 4px;
+}
+
 /* MORE 按鈕在左側文字欄 */
 .favorites-text .more-btn-wrap {
   margin-top: 20px;

@@ -166,7 +166,7 @@ export default function QuizResult() {
   const shareOrDownload = (file: File) => {
     if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
       return navigator
-        .share({ files: [file], title: `${data.title} | Midnight Moodvie` })
+        .share({ files: [file] })
         .catch((err: Error) => {
           if (err.name === "AbortError") return;
           console.error("[QuizResult] share failed, downloading:", err);

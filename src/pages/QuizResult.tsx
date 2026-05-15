@@ -6,6 +6,7 @@ import TopNav from "../components/TopNav";
 import { getMoviesByMultipleTags, posterUrl, type MovieWithScore, type FestivalAward } from "../lib/directus";
 import { CHARACTERS, type ResultKey } from "../data/quizData";
 import { characterImageUrl, CHARACTER_IMAGE_FALLBACK } from "../data/characterImages";
+import { track } from "../lib/analytics";
 import "./QuizResult.css";
 
 const POSTER_FALLBACK = "img/poster1.jpg";
@@ -65,6 +66,8 @@ export default function QuizResult() {
   const [reloadKey, setReloadKey] = useState(0);
   const [sharing, setSharing] = useState(false);
   const preBuiltFileRef = useRef<File | null>(null);
+  const rerollCountRef = useRef(0);
+  const viewedAtRef = useRef<number>(performance.now());
 
   const buildShareFile = async (story: HTMLElement): Promise<File | null> => {
     const imgs = Array.from(story.querySelectorAll("img"));
@@ -93,9 +96,7 @@ export default function QuizResult() {
       windowHeight: 1920,
     });
 
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/png"),
-    );
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) return null;
     return new File([blob], `moodie-${type}-story.png`, { type: "image/png" });
   };
@@ -119,14 +120,19 @@ export default function QuizResult() {
       }
     };
 
-    const supportsIdleCallback =
-      typeof window.requestIdleCallback === "function" &&
-      typeof window.cancelIdleCallback === "function";
+    const supportsIdleCallback = typeof window.requestIdleCallback === "function" && typeof window.cancelIdleCallback === "function";
     let handle: number;
     if (supportsIdleCallback) {
-      handle = window.requestIdleCallback(() => { void run(); }, { timeout: 3000 });
+      handle = window.requestIdleCallback(
+        () => {
+          void run();
+        },
+        { timeout: 3000 },
+      );
     } else {
-      handle = window.setTimeout(() => { void run(); }, 200);
+      handle = window.setTimeout(() => {
+        void run();
+      }, 200);
     }
 
     return () => {
@@ -150,20 +156,35 @@ export default function QuizResult() {
 
   const shareOrDownload = (file: File) => {
     if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
-      return navigator
-        .share({ files: [file], title: "", text: "" })
-        .catch((err: Error) => {
-          if (err.name === "AbortError") return;
-          console.error("[QuizResult] share failed, downloading:", err);
-          downloadShareFile(file);
-        });
+      return navigator.share({ files: [file], title: "", text: "" }).catch((err: Error) => {
+        if (err.name === "AbortError") return;
+        console.error("[QuizResult] share failed, downloading:", err);
+        downloadShareFile(file);
+      });
     }
     downloadShareFile(file);
     return Promise.resolve();
   };
 
+  const handleReroll = () => {
+    rerollCountRef.current += 1;
+    track("quiz_result_rerolled", {
+      result_type: type,
+      reroll_count: rerollCountRef.current,
+      previous_movie_id: movie?.id ?? null,
+    });
+    viewedAtRef.current = performance.now();
+    setReloadKey((k) => k + 1);
+  };
+
   const handleShare = async () => {
     if (sharing) return;
+    track("quiz_result_shared", {
+      result_type: type,
+      movie_id: movie?.id ?? null,
+      has_prebuilt: !!preBuiltFileRef.current,
+      can_native_share: typeof navigator !== "undefined" && !!navigator.canShare,
+    });
 
     // Fast path: pre-built file is ready. navigator.share() called synchronously
     // here (no awaits before) so iOS transient user activation is preserved.
@@ -204,21 +225,44 @@ export default function QuizResult() {
     setError(null);
     getMoviesByMultipleTags(data.tags)
       .then((ms) => {
-        if (!cancelled) {
-          setMovie(ms[0] ?? null);
-          setLoading(false);
+        if (cancelled) return;
+        const m = ms[0] ?? null;
+        setMovie(m);
+        setLoading(false);
+        if (m) {
+          const timeToMovieMs = Math.round(performance.now() - viewedAtRef.current);
+          track("quiz_result_viewed", {
+            result_type: type,
+            character_title: data.title,
+            movie_id: m.id,
+            movie_title: m.title,
+            reroll_count: rerollCountRef.current,
+            time_to_movie_ms: timeToMovieMs,
+          });
+        } else {
+          track("error_shown", {
+            error_type: "no_results",
+            context: "quiz_result",
+            result_type: type,
+          });
         }
       })
       .catch((e) => {
         if (!cancelled) {
           setError(e?.message ?? "載入失敗");
           setLoading(false);
+          track("error_shown", {
+            error_type: "load_fail",
+            context: "quiz_result",
+            result_type: type,
+            message: e?.message ?? "unknown",
+          });
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [type, reloadKey, locationKey]);
+  }, [type, reloadKey, locationKey, data.tags, data.title]);
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.target as HTMLImageElement;
@@ -272,7 +316,7 @@ export default function QuizResult() {
                 {!loading && error && (
                   <div className="qr-error">
                     <p>無法載入推薦</p>
-                    <button className="qr-btn-ghost" onClick={() => setReloadKey((k) => k + 1)}>
+                    <button className="qr-btn-ghost" onClick={handleReroll}>
                       重試
                     </button>
                   </div>
@@ -337,12 +381,12 @@ export default function QuizResult() {
               <div className="qr-actions">
                 <motion.button
                   className="qr-btn-ghost"
-                  onClick={() => setReloadKey((k) => k + 1)}
+                  onClick={handleReroll}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ duration: 0.15 }}
                 >
-                  再試一部
+                  再看一部
                 </motion.button>
                 <motion.button
                   className="qr-btn-ghost"

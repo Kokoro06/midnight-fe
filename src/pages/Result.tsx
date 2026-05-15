@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import GrainCanvas from "../components/GrainCanvas";
 import TopNav from "../components/TopNav";
 import { getMoviesByMultipleTags, posterUrl, type MovieWithScore, type FestivalAward } from "../lib/directus";
+import { getWatchProviders, providerLogoUrl, type Provider, type WatchProviders } from "../lib/tmdb";
 import { topAward, topAwards } from "../lib/awards";
 import "./Result.css";
 
@@ -50,7 +51,9 @@ export default function Result() {
           setLoading(false);
         }
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tagsParam, reloadKey, locationKey]);
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -68,6 +71,99 @@ export default function Result() {
       </div>
     </div>
   );
+
+  const WatchProvidersPanel = ({ movie }: { movie: MovieWithScore }) => {
+    const [providers, setProviders] = useState<WatchProviders | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      let cancelled = false;
+      if (!movie.tmdb_id) {
+        setProviders(null);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      getWatchProviders(movie.tmdb_id).then((p) => {
+        if (!cancelled) {
+          setProviders(p);
+          setLoading(false);
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [movie.tmdb_id]);
+
+    if (loading) {
+      return (
+        <div className="primary-providers primary-providers--loading" aria-hidden>
+          <span className="skeleton-line skeleton-line-lg" />
+        </div>
+      );
+    }
+
+    const total =
+      (providers?.flatrate.length ?? 0) + (providers?.rent.length ?? 0) + (providers?.buy.length ?? 0);
+
+    if (!providers || total === 0) {
+      if (movie.justwatch_url) {
+        return (
+          <a
+            className="primary-watch"
+            href={movie.justwatch_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`在 JustWatch 上查看《${movie.title}》的觀看平台（新分頁開啟）`}
+          >
+            哪裡看 <span aria-hidden="true">↗</span>
+          </a>
+        );
+      }
+      return <p className="primary-providers-empty">目前在台灣查無串流平台</p>;
+    }
+
+    const link = providers.link ?? movie.justwatch_url ?? null;
+
+    const renderGroup = (label: string, list: Provider[]) => {
+      if (list.length === 0) return null;
+      return (
+        <div className="providers-group">
+          <span className="providers-group-label">{label}</span>
+          <div className="providers-list">
+            {list.map((p) =>
+              link ? (
+                <a
+                  key={p.provider_id}
+                  className="provider-tile"
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`在 ${p.provider_name} ${label}（透過 JustWatch 開啟）`}
+                >
+                  <img src={providerLogoUrl(p)} alt="" className="provider-logo" loading="lazy" />
+                  <span className="provider-name">{p.provider_name}</span>
+                </a>
+              ) : (
+                <span key={p.provider_id} className="provider-tile">
+                  <img src={providerLogoUrl(p)} alt="" className="provider-logo" loading="lazy" />
+                  <span className="provider-name">{p.provider_name}</span>
+                </span>
+              ),
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="primary-providers" aria-label="在台灣可看的串流平台">
+        {renderGroup("訂閱", providers.flatrate)}
+        {renderGroup("租借", providers.rent)}
+        {renderGroup("購買", providers.buy)}
+      </div>
+    );
+  };
 
   const PrimaryMovieCard = ({ m }: { m: MovieWithScore }) => {
     const awards = topAwards(m.festival_awards, 3);
@@ -92,9 +188,7 @@ export default function Result() {
             </div>
           )}
           <h3 className="primary-title">{m.title}</h3>
-          {m.original_title && m.original_title !== m.title && (
-            <p className="primary-original">{m.original_title}</p>
-          )}
+          {m.original_title && m.original_title !== m.title && <p className="primary-original">{m.original_title}</p>}
           {m.year > 0 && <span className="primary-year">{m.year}</span>}
           {m.overview && (
             <p
@@ -113,17 +207,7 @@ export default function Result() {
               {m.overview}
             </p>
           )}
-          {m.justwatch_url && (
-            <a
-              className="primary-watch"
-              href={m.justwatch_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`在 JustWatch 上查看《${m.title}》的觀看平台（新分頁開啟）`}
-            >
-              哪裡看 <span aria-hidden="true">↗</span>
-            </a>
-          )}
+          <WatchProvidersPanel movie={m} />
         </div>
       </motion.div>
     );
@@ -168,15 +252,13 @@ export default function Result() {
               <div className="result-side">
                 {moodParam && tagNames.length > 0 ? (
                   <div className="mood-echo">
-                    <p className="mood-echo-quote">你說：「<span className="mood-echo-input">{moodParam}</span>」</p>
+                    <p className="mood-echo-quote">
+                      你說：「<span className="mood-echo-input">{moodParam}</span>」
+                    </p>
                     <p className="mood-echo-tags">→ 我理解為 {tagNames.map((t) => `#${t}`).join(" ")}</p>
                   </div>
                 ) : (
-                  <h3 className="result-heading">
-                    {tagNames.length > 0
-                      ? `根據你的心情：${tagNames.map((t) => `#${t}`).join(" ")}`
-                      : "今晚想看什麼？"}
-                  </h3>
+                  <h3 className="result-heading">{tagNames.length > 0 ? `根據你的心情：${tagNames.map((t) => `#${t}`).join(" ")}` : "今晚想看什麼？"}</h3>
                 )}
                 <div className="result-actions">
                   <motion.button
@@ -186,7 +268,7 @@ export default function Result() {
                     whileTap={{ scale: 0.97 }}
                     transition={{ duration: 0.15 }}
                   >
-                    再推一部
+                    再看一部
                   </motion.button>
                   <motion.button
                     className="more-btn"

@@ -37,6 +37,7 @@ export interface Movie {
   festival_awards: FestivalAward[]
   overview: string | null
   justwatch_url: string | null
+  tmdb_id: number | null
 }
 
 type DirectusMovie = {
@@ -51,6 +52,7 @@ type DirectusMovie = {
   festival_awards: FestivalAward[]
   overview: string | null
   justwatch_url: string | null
+  tmdb_id: number | null
 }
 
 function localFallback(tagNames: string[]): Movie[] {
@@ -71,6 +73,7 @@ function localFallback(tagNames: string[]): Movie[] {
       festival_awards: [],
       overview: null,
       justwatch_url: null,
+      tmdb_id: null,
     }))
 }
 
@@ -84,7 +87,7 @@ export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
       readItems('movies', {
         ...query,
         fields: ['id', 'title', 'original_title', 'year', 'poster', 'poster_url', 'weight',
-          'overview', 'justwatch_url',
+          'overview', 'justwatch_url', 'tmdb_id',
           'tags.tags_id.id', 'tags.tags_id.name', 'tags.tags_id.category', 'tags.weight',
           'festival_awards.id', 'festival_awards.festival', 'festival_awards.year',
           'festival_awards.edition', 'festival_awards.award_category', 'festival_awards.result'],
@@ -104,6 +107,7 @@ export async function getMoviesByTags(tagNames: string[]): Promise<Movie[]> {
       festival_awards: m.festival_awards ?? [],
       overview: m.overview ?? null,
       justwatch_url: m.justwatch_url ?? null,
+      tmdb_id: m.tmdb_id ?? null,
     }))
 
     if (movies.length > 0) {
@@ -188,7 +192,7 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
       readItems('movies', {
         filter: { tags: { tags_id: { name: { _in: tagNames } } } },
         fields: ['id', 'title', 'original_title', 'year', 'poster', 'poster_url', 'weight',
-          'overview', 'justwatch_url',
+          'overview', 'justwatch_url', 'tmdb_id',
           'tags.tags_id.id', 'tags.tags_id.name', 'tags.tags_id.category', 'tags.weight',
           'festival_awards.id', 'festival_awards.festival', 'festival_awards.year',
           'festival_awards.edition', 'festival_awards.award_category', 'festival_awards.result'],
@@ -211,6 +215,7 @@ export async function getMoviesByMultipleTags(tagNames: string[]): Promise<Movie
         tags, festival_awards,
         overview: m.overview ?? null,
         justwatch_url: m.justwatch_url ?? null,
+        tmdb_id: m.tmdb_id ?? null,
         score: tagScore,
       }
     })

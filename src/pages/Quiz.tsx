@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import GrainCanvas from "../components/GrainCanvas";
 import TopNav from "../components/TopNav";
 import { QUESTIONS, computeResult, type OptionBinary } from "../data/quizData";
+import { track } from "../lib/analytics";
 import "./Quiz.css";
 
 const TOTAL = QUESTIONS.length;
@@ -73,6 +74,30 @@ export default function Quiz() {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingHandleRef = useRef<TypeHandle | undefined>(undefined);
+  const quizStartedAtRef = useRef<number | null>(null);
+  const questionShownAtRef = useRef<number | null>(null);
+  const startedRef = useRef(false);
+  const stateRef = useRef({ step: 0, answers: [] as OptionBinary[] });
+
+  useEffect(() => {
+    stateRef.current = { step, answers };
+  }, [step, answers]);
+
+  useEffect(() => {
+    const onPageHide = () => {
+      const s = stateRef.current;
+      if (startedRef.current && s.answers.length < TOTAL) {
+        track("quiz_abandoned", {
+          last_step: s.step,
+          answers_count: s.answers.length,
+          answers_so_far: s.answers,
+          exit_method: "page_hide",
+        });
+      }
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, []);
 
   useEffect(() => {
     document.title = "心情測驗 | Midnight Moodvie";
@@ -96,6 +121,7 @@ export default function Quiz() {
         () => {
           setIsTyping(false);
           setOptionsVisible(true);
+          questionShownAtRef.current = performance.now();
         },
         typingHandleRef.current,
       );
@@ -106,6 +132,16 @@ export default function Quiz() {
     if (leaving || chosenOption !== null) return;
     setChosenOption(type);
 
+    const shownAt = questionShownAtRef.current;
+    const timeToAnswer = shownAt !== null ? Math.round(performance.now() - shownAt) : null;
+    const currentQ = QUESTIONS[step - 1];
+    track("quiz_question_answered", {
+      step,
+      axis: currentQ?.axis,
+      choice: type,
+      time_to_answer_ms: timeToAnswer,
+    });
+
     setTimeout(() => {
       setLeaving(true);
       setTimeout(() => {
@@ -115,6 +151,13 @@ export default function Quiz() {
 
         if (nextStep > TOTAL) {
           const key = computeResult(newAnswers);
+          const startedAt = quizStartedAtRef.current;
+          const durationMs = startedAt !== null ? Math.round(performance.now() - startedAt) : null;
+          track("quiz_completed", {
+            result_type: key,
+            answers: newAnswers,
+            duration_ms: durationMs,
+          });
           setTimeout(() => navigate(`/quiz-result?type=${key}`), 450);
         } else {
           setStep(nextStep);
@@ -154,6 +197,9 @@ export default function Quiz() {
                 className="scene-option btn-quiz-start"
                 style={{ display: "block", width: "100%", maxWidth: "200px", fontSize: "14px" }}
                 onClick={() => {
+                  startedRef.current = true;
+                  quizStartedAtRef.current = performance.now();
+                  track("quiz_started");
                   setStep(1);
                   setLeaving(false);
                 }}
@@ -163,7 +209,11 @@ export default function Quiz() {
               >
                 開始測驗
               </motion.button>
-              <Link to="/" className="skip-link">
+              <Link
+                to="/"
+                className="skip-link"
+                onClick={() => track("quiz_skipped", { step_at_skip: 0 })}
+              >
                 略過測驗，直接前往首頁
               </Link>
             </div>
@@ -181,7 +231,20 @@ export default function Quiz() {
                 Q{q.step}
                 <span className="quiz-step-total"> / {TOTAL}</span>
               </span>
-              <Link to="/" className="quiz-exit-link">
+              <Link
+                to="/"
+                className="quiz-exit-link"
+                onClick={() => {
+                  if (startedRef.current && answers.length < TOTAL) {
+                    track("quiz_abandoned", {
+                      last_step: step,
+                      answers_count: answers.length,
+                      answers_so_far: answers,
+                      exit_method: "leave_link",
+                    });
+                  }
+                }}
+              >
                 離開
               </Link>
             </div>

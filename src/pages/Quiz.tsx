@@ -147,10 +147,8 @@ export default function Quiz() {
             <div className="scene-logo">
               <img src="img/mm-logo-w.svg" alt="Midnight Moodvie" />
             </div>
-            <h1 className="scene-title">{titleText}</h1>
-            <p className="scene-subtitle">你是哪款！電影地縛靈 👻</p>
-            <p className="scene-preview">共 {TOTAL} 題，大約一首歌的時間</p>
-            <div className="quiz-divider" style={{ marginBottom: "32px" }} />
+            <p className="scene-subtitle">{titleText}</p>
+            <h1 className="scene-title">你是哪款電影地縛靈？</h1>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <motion.button
                 className="scene-option btn-quiz-start"
@@ -205,11 +203,6 @@ export default function Quiz() {
                 </motion.button>
               ))}
             </div>
-            {q.footnote && (
-              <div className="scene-footnote">
-                <small>{q.footnote}</small>
-              </div>
-            )}
           </QuizCard>
         </section>
       ))}

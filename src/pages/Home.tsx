@@ -118,13 +118,15 @@ const FESTIVAL_FILMS: Film[] = [
     title: "《錄影帶謀殺案》 Videodrome",
     poster: "img/poster7.jpg",
     meta: "加拿大 Canada｜1983｜87min｜大衛柯能堡",
-    synopsis: "電視台老闆意外截獲一段充滿暴力虐殺的神祕頻段，不僅與女友陷入病態的迷戀，更導致身體產生詭異變異。隨著幻覺與現實模糊，他漸漸落入難以挽回的感官陷阱。",
+    synopsis:
+      "電視台老闆意外截獲一段充滿暴力虐殺的神祕頻段，不僅與女友陷入病態的迷戀，更導致身體產生詭異變異。隨著幻覺與現實模糊，他漸漸落入難以挽回的感官陷阱。",
   },
   {
     title: "《輕鬆生活》 Easy Living",
     poster: "img/poster6.jpg",
     meta: "美國 USA｜1937｜88min｜米契爾萊森",
-    synopsis: "富有的銀行家一氣之下扔掉妻子昂貴的貂皮大衣，從天而降在一個女職員身上，導致每個人都誤以為她是富商的情婦，忙著討好巴結。隨之而來的誤會，讓劇情瘋狂超展開，推向意想不到的結局。",
+    synopsis:
+      "富有的銀行家一氣之下扔掉妻子昂貴的貂皮大衣，從天而降在一個女職員身上，導致每個人都誤以為她是富商的情婦，忙著討好巴結。隨之而來的誤會，讓劇情瘋狂超展開，推向意想不到的結局。",
   },
 ];
 
@@ -133,13 +135,15 @@ const YEARLY_FILMS: Film[] = [
     title: "《青春末世物語》 Happyend",
     poster: "img/poster1.jpg",
     meta: "日本 Japan｜2025｜113min｜空音央",
-    synopsis: "在壓抑的東京校園，兩名叛逆高中生以音樂與惡作劇對抗體制。一場校方發起的監控反擊，卻意外引發學生思潮的動盪，讓兩人的友誼與未來在畢業前夕瀕臨失控。",
+    synopsis:
+      "在壓抑的東京校園，兩名叛逆高中生以音樂與惡作劇對抗體制。一場校方發起的監控反擊，卻意外引發學生思潮的動盪，讓兩人的友誼與未來在畢業前夕瀕臨失控。",
   },
   {
     title: "《一百公尺》 100 Meters",
     poster: "img/poster2.jpg",
     meta: "日本 Japan｜2025｜106min｜岩井澤健治",
-    synopsis: "兩名少年因田徑結緣，在追求速度的賽道上發展出亦敵亦友的深厚羈絆。多年後，當天才跑者陷入恐懼巔峰，昔日的同伴已蛻變為強大對手，再度於百米起點重逢。",
+    synopsis:
+      "兩名少年因田徑結緣，在追求速度的賽道上發展出亦敵亦友的深厚羈絆。多年後，當天才跑者陷入恐懼巔峰，昔日的同伴已蛻變為強大對手，再度於百米起點重逢。",
   },
   {
     title: "《長椅小情歌》 At the Bench",
@@ -151,7 +155,8 @@ const YEARLY_FILMS: Film[] = [
     title: "《我家的事》 Family Matters",
     poster: "img/poster3.jpg",
     meta: "台灣 Taiwan｜2025｜99min｜潘客印",
-    synopsis: "橫跨台灣鄉間一年四季，透過一家四口各自的祕密與困境，細膩編織出平凡家庭的悲歡離合。當微光照進幽暗，那些隱藏在歡笑後的徬徨，終將化作動人的時光畫像。",
+    synopsis:
+      "橫跨台灣鄉間一年四季，透過一家四口各自的祕密與困境，細膩編織出平凡家庭的悲歡離合。當微光照進幽暗，那些隱藏在歡笑後的徬徨，終將化作動人的時光畫像。",
   },
 ];
 
@@ -162,13 +167,7 @@ function PosterShowcase({ films, variant, onPosterClick }: { films: Film[]; vari
       <GrainCanvas className="fav-grain" />
       <div className="festival-posters">
         {films.map((f, i) => (
-          <button
-            key={f.title}
-            type="button"
-            className={`fp-item fp-item--${i}`}
-            onClick={() => onPosterClick(f)}
-            aria-label={`查看 ${f.title} 簡介`}
-          >
+          <button key={f.title} type="button" className={`fp-item fp-item--${i}`} onClick={() => onPosterClick(f)} aria-label={`查看 ${f.title} 簡介`}>
             <div className="fp-img" style={{ backgroundImage: `url(${f.poster})` }} />
             <p className="fp-title">{f.title}</p>
             <p className="fp-meta">{f.meta}</p>
@@ -202,7 +201,9 @@ function SynopsisModal({ film, onClose }: { film: Film | null; onClose: () => vo
             aria-modal="true"
             aria-label={`${film.title} 簡介`}
           >
-            <button type="button" className="synopsis-close" onClick={onClose} aria-label="關閉">×</button>
+            <button type="button" className="synopsis-close" onClick={onClose} aria-label="關閉">
+              ×
+            </button>
             <div className="synopsis-poster" style={{ backgroundImage: `url(${film.poster})` }} />
             <div className="synopsis-body">
               <h3 className="synopsis-title">{film.title}</h3>
@@ -280,7 +281,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!modalFilm) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setModalFilm(null); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setModalFilm(null);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [modalFilm]);
@@ -440,8 +443,7 @@ export default function Home() {
     navigate(`/result?tags=${directusTags.map(encodeURIComponent).join(",")}${moodParam}`);
   };
 
-  const MARQUEE_TEXT =
-    "在午夜裡✶讓電影成為心的放映～✶今天的你適合看哪一部電影✦✦在午夜裡✶讓電影成為心的放映～✶今天的你適合看哪一部電影✦✦在午夜裡✶讓電影成為心的放映～✶今天的你適合看哪一部電影✦✦";
+  const MARQUEE_TEXT = "感恩的心！5月15日歡迎投觀眾票選幫我衝一下人氣..＞＿＜..!!✦✦在午夜裡✶讓電影成為心的放映～✶金馬經典影展要開展啦～～你今天過得還好嗎？";
 
   return (
     <>

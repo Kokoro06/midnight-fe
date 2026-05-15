@@ -27,18 +27,31 @@ export function initAnalytics() {
 
 export function track(name: string, props?: Record<string, unknown>) {
   if (!initialized) return
-  posthog.capture(name, props)
+  try {
+    posthog.capture(name, props)
+  } catch (err) {
+    console.warn('[analytics] capture failed:', name, err)
+  }
 }
 
 export function trackPageview(path: string) {
   if (!initialized) return
-  posthog.capture('$pageview', {
-    $current_url: window.location.href,
-    $pathname: path,
-  })
+  try {
+    posthog.capture('$pageview', {
+      $current_url: window.location.href,
+      $pathname: path,
+    })
+  } catch (err) {
+    console.warn('[analytics] pageview failed:', path, err)
+  }
 }
 
 export function resetAnalytics() {
   if (!initialized) return
   posthog.reset()
+}
+
+export function truncateMoodText(text: string, max = 500): string {
+  if (typeof text !== 'string') return ''
+  return text.length > max ? text.slice(0, max) : text
 }

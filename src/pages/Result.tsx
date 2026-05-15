@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import GrainCanvas from "../components/GrainCanvas";
@@ -6,6 +6,7 @@ import TopNav from "../components/TopNav";
 import { getMoviesByMultipleTags, posterUrl, type MovieWithScore, type FestivalAward } from "../lib/directus";
 import { getWatchProviders, providerLogoUrl, type Provider, type WatchProviders } from "../lib/tmdb";
 import { topAward, topAwards } from "../lib/awards";
+import { track, truncateMoodText } from "../lib/analytics";
 import "./Result.css";
 
 const POSTER_FALLBACK = "img/poster1.jpg";
@@ -29,6 +30,8 @@ export default function Result() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const rerollCountRef = useRef(0);
+  const viewedAtRef = useRef<number>(performance.now());
 
   useEffect(() => {
     document.title = "心情推薦 | Midnight Moodvie";
@@ -40,21 +43,57 @@ export default function Result() {
     setError(null);
     getMoviesByMultipleTags(tagNames)
       .then((ms) => {
-        if (!cancelled) {
-          setMovies(ms);
-          setLoading(false);
+        if (cancelled) return;
+        setMovies(ms);
+        setLoading(false);
+        const timeToMovieMs = Math.round(performance.now() - viewedAtRef.current);
+        if (ms.length > 0) {
+          track("result_viewed", {
+            tags: tagNames,
+            mood_text: moodParam ? truncateMoodText(moodParam) : null,
+            mood_text_length: moodParam.length,
+            entry_path: moodParam ? "mood" : "tags",
+            result_count: ms.length,
+            primary_movie_id: ms[0].id,
+            primary_movie_title: ms[0].title,
+            reroll_count: rerollCountRef.current,
+            time_to_movie_ms: timeToMovieMs,
+          });
+        } else {
+          track("error_shown", {
+            error_type: "no_results",
+            context: "mood_result",
+            tags: tagNames,
+          });
         }
       })
       .catch((e) => {
         if (!cancelled) {
           setError(e?.message ?? "載入失敗");
           setLoading(false);
+          track("error_shown", {
+            error_type: "load_fail",
+            context: "mood_result",
+            tags: tagNames,
+            message: e?.message ?? "unknown",
+          });
         }
       });
     return () => {
       cancelled = true;
     };
   }, [tagsParam, reloadKey, locationKey]);
+
+  const handleReroll = () => {
+    rerollCountRef.current += 1;
+    track("result_rerolled", {
+      tags: tagNames,
+      reroll_count: rerollCountRef.current,
+      previous_primary_movie_id: movies[0]?.id ?? null,
+    });
+    viewedAtRef.current = performance.now();
+    setReloadKey((k) => k + 1);
+  };
 
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.target as HTMLImageElement;
@@ -115,6 +154,16 @@ export default function Result() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`在 JustWatch 上查看《${movie.title}》的觀看平台（新分頁開啟）`}
+            onClick={() =>
+              track("movie_clicked_out", {
+                movie_id: movie.id,
+                movie_title: movie.title,
+                rank: 1,
+                source: "mood_result",
+                link_kind: "justwatch_fallback",
+                tags: tagNames,
+              })
+            }
           >
             哪裡看 <span aria-hidden="true">↗</span>
           </a>
@@ -140,6 +189,19 @@ export default function Result() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`在 ${p.provider_name} ${label}（透過 JustWatch 開啟）`}
+                  onClick={() =>
+                    track("movie_clicked_out", {
+                      movie_id: movie.id,
+                      movie_title: movie.title,
+                      rank: 1,
+                      source: "mood_result",
+                      link_kind: "provider_tile",
+                      provider_id: p.provider_id,
+                      provider_name: p.provider_name,
+                      provider_group: label,
+                      tags: tagNames,
+                    })
+                  }
                 >
                   <img src={providerLogoUrl(p)} alt="" className="provider-logo" loading="lazy" />
                   <span className="provider-name">{p.provider_name}</span>
@@ -171,6 +233,11 @@ export default function Result() {
     useEffect(() => {
       setExpanded(false);
     }, [m.id]);
+    const toggleExpanded = () => {
+      const next = !expanded;
+      setExpanded(next);
+      track("movie_overview_expanded", { movie_id: m.id, expanded: next });
+    };
     return (
       <motion.div
         className="primary-movie-card"
@@ -193,14 +260,14 @@ export default function Result() {
           {m.overview && (
             <p
               className={`primary-overview ${expanded ? "is-expanded" : ""}`}
-              onClick={() => setExpanded((v) => !v)}
+              onClick={toggleExpanded}
               role="button"
               tabIndex={0}
               aria-expanded={expanded}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  setExpanded((v) => !v);
+                  toggleExpanded();
                 }
               }}
             >
@@ -263,7 +330,7 @@ export default function Result() {
                 <div className="result-actions">
                   <motion.button
                     className="btn-primary"
-                    onClick={() => setReloadKey((k) => k + 1)}
+                    onClick={handleReroll}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     transition={{ duration: 0.15 }}

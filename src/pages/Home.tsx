@@ -10,6 +10,7 @@ import GrainCanvas from "../components/GrainCanvas";
 import GravityTags from "../components/GravityTags";
 import TopNav from "../components/TopNav";
 import { directus } from "../lib/directus";
+import { track, truncateMoodText } from "../lib/analytics";
 import "./Home.css";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -406,6 +407,7 @@ export default function Home() {
     if (!trimmed || mappingLoading) return;
     setMappingLoading(true);
     setMappingError(null);
+    const startedAt = performance.now();
     try {
       const res = await fetch(MOOD_MAPPER_URL, {
         method: "POST",
@@ -418,9 +420,20 @@ export default function Home() {
       }
       const { tags } = await res.json();
       if (!Array.isArray(tags) || tags.length === 0) throw new Error("無法識別心情標籤");
+      track("mood_input_submitted", {
+        mood_text: truncateMoodText(trimmed),
+        mood_text_length: trimmed.length,
+        tags_returned: tags,
+        mapper_latency_ms: Math.round(performance.now() - startedAt),
+      });
       navigate(`/result?tags=${tags.map(encodeURIComponent).join(",")}&mood=${encodeURIComponent(trimmed)}`);
-    } catch {
+    } catch (err) {
       setMappingError("無法分析心情，請試試直接選 tag");
+      track("mood_input_failed", {
+        mood_text_length: trimmed.length,
+        error_message: err instanceof Error ? err.message : "unknown",
+        mapper_latency_ms: Math.round(performance.now() - startedAt),
+      });
     } finally {
       setMappingLoading(false);
     }
@@ -440,6 +453,10 @@ export default function Home() {
     }
 
     if (directusTags.length === 0) return;
+    track("tags_submitted", {
+      tags: directusTags,
+      selected_count: selectedTags.length,
+    });
     navigate(`/result?tags=${directusTags.map(encodeURIComponent).join(",")}${moodParam}`);
   };
 

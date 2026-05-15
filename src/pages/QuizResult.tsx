@@ -119,18 +119,19 @@ export default function QuizResult() {
       }
     };
 
-    const ric = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
-    const cic = (window as Window & { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback;
+    const supportsIdleCallback =
+      typeof window.requestIdleCallback === "function" &&
+      typeof window.cancelIdleCallback === "function";
     let handle: number;
-    if (ric) {
-      handle = ric(() => { void run(); }, { timeout: 3000 });
+    if (supportsIdleCallback) {
+      handle = window.requestIdleCallback(() => { void run(); }, { timeout: 3000 });
     } else {
       handle = window.setTimeout(() => { void run(); }, 200);
     }
 
     return () => {
       cancelled = true;
-      if (ric && cic) cic(handle);
+      if (supportsIdleCallback) window.cancelIdleCallback(handle);
       else window.clearTimeout(handle);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

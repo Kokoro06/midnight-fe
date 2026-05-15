@@ -11,8 +11,11 @@ import Quiz from './pages/Quiz'
 import Effect from './pages/Effect'
 import Result from './pages/Result'
 import QuizResult from './pages/QuizResult'
+import Privacy from './pages/Privacy'
 import NotFound from './pages/NotFound'
 import SiteFooter from './components/SiteFooter'
+import ConsentBanner from './components/ConsentBanner'
+import AnalyticsListener from './components/AnalyticsListener'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -66,6 +69,7 @@ function AnimatedRoutes() {
           <Route path="/effect" element={<Effect />} />
           <Route path="/result" element={<Result />} />
           <Route path="/quiz-result" element={<QuizResult />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>
@@ -91,8 +95,10 @@ export default function App() {
         <BrowserRouter>
           <GSAPLenisSync />
           <ScrollToTop />
+          <AnalyticsListener />
           <AnimatedRoutes />
           <SiteFooter />
+          <ConsentBanner />
         </BrowserRouter>
       </ReactLenis>
     </MotionConfig>

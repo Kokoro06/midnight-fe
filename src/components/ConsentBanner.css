@@ -1,0 +1,93 @@
+.consent-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(12, 9, 5, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  line-height: 1.55;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.consent-text {
+  margin: 0;
+}
+
+.consent-link {
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.consent-link:hover {
+  color: #fff;
+}
+
+.consent-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.consent-btn {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.consent-btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.consent-btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+.consent-btn-primary {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid transparent;
+  color: #0c0905;
+  font-weight: 500;
+}
+
+.consent-btn-primary:hover {
+  background: #fff;
+}
+
+@media (min-width: 640px) {
+  .consent-banner {
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 20px;
+  }
+
+  .consent-text {
+    flex: 1;
+  }
+
+  .consent-actions {
+    flex-shrink: 0;
+  }
+}

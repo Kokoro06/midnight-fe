@@ -1,0 +1,107 @@
+.privacy-page {
+  min-height: 100vh;
+  background: #0c0905;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.privacy-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 120px 24px 96px;
+  line-height: 1.75;
+  font-size: 15px;
+}
+
+.privacy-title {
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.privacy-meta {
+  margin: 0 0 40px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.privacy-section {
+  margin: 32px 0;
+}
+
+.privacy-section h2 {
+  font-size: 17px;
+  font-weight: 500;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.privacy-section p,
+.privacy-section ul {
+  margin: 0 0 12px;
+}
+
+.privacy-section ul {
+  padding-left: 20px;
+}
+
+.privacy-section li {
+  margin-bottom: 8px;
+}
+
+.privacy-section a {
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.privacy-section a:hover {
+  color: #fff;
+}
+
+.privacy-section code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.privacy-current {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.privacy-reset {
+  margin-left: 8px;
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+.privacy-reset:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+.privacy-back {
+  margin-top: 56px;
+}
+
+.privacy-back a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+.privacy-back a:hover {
+  color: #fff;
+}

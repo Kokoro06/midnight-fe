@@ -146,29 +146,6 @@ export default function Result() {
       (providers?.flatrate.length ?? 0) + (providers?.rent.length ?? 0) + (providers?.buy.length ?? 0);
 
     if (!providers || total === 0) {
-      if (movie.justwatch_url) {
-        return (
-          <a
-            className="primary-watch"
-            href={movie.justwatch_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`在 JustWatch 上查看《${movie.title}》的觀看平台（新分頁開啟）`}
-            onClick={() =>
-              track("movie_clicked_out", {
-                movie_id: movie.id,
-                movie_title: movie.title,
-                rank: 1,
-                source: "mood_result",
-                link_kind: "justwatch_fallback",
-                tags: tagNames,
-              })
-            }
-          >
-            哪裡看 <span aria-hidden="true">↗</span>
-          </a>
-        );
-      }
       return <p className="primary-providers-empty">目前在台灣查無串流平台</p>;
     }
 

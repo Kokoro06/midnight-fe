@@ -77,12 +77,6 @@
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 40px 100px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.6);
-  animation: cardFloat 7s ease-in-out infinite;
-}
-
-@keyframes cardFloat {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-7px); }
 }
 
 .quiz-card-bg {
@@ -99,7 +93,7 @@
   content: "";
   position: absolute;
   border-radius: 50%;
-  filter: blur(55px);
+  filter: blur(40px);
   pointer-events: none;
 }
 
@@ -107,28 +101,12 @@
   width: 75%; height: 80%;
   top: -20%; right: -15%;
   background: radial-gradient(circle, rgba(165,58,8,0.82) 0%, rgba(110,30,5,0.45) 45%, transparent 72%);
-  animation: smokeA 14s ease-in-out infinite alternate;
 }
 
 .quiz-card-bg::after {
   width: 65%; height: 70%;
   bottom: -20%; left: -10%;
   background: radial-gradient(circle, rgba(130,42,6,0.7) 0%, rgba(80,20,4,0.4) 50%, transparent 72%);
-  animation: smokeB 18s ease-in-out infinite alternate;
-}
-
-@keyframes smokeA {
-  0% { transform: translate(0%,0%) scale(1); }
-  30% { transform: translate(-8%,6%) scale(1.08); }
-  60% { transform: translate(5%,-4%) scale(0.95); }
-  100% { transform: translate(-4%,10%) scale(1.05); }
-}
-
-@keyframes smokeB {
-  0% { transform: translate(0%,0%) scale(1); }
-  40% { transform: translate(10%,-8%) scale(1.1); }
-  70% { transform: translate(-5%,5%) scale(0.92); }
-  100% { transform: translate(8%,-6%) scale(1.06); }
 }
 
 .quiz-card-smoke {
@@ -145,15 +123,8 @@
   width: 50%; height: 55%;
   top: 20%; left: 25%;
   border-radius: 50%;
-  filter: blur(45px);
+  filter: blur(35px);
   background: radial-gradient(circle, rgba(95,28,5,0.45) 0%, transparent 70%);
-  animation: smokeC 10s ease-in-out infinite alternate;
-}
-
-@keyframes smokeC {
-  0% { transform: translate(0,0) scale(1); }
-  50% { transform: translate(12%,8%) scale(1.1); }
-  100% { transform: translate(-8%,-5%) scale(0.9); }
 }
 
 .grain-canvas {
@@ -206,8 +177,9 @@
   font-size: 20px;
   letter-spacing: 0.24em;
   color: #cda415;
+  text-shadow: 0 0 6px rgba(247,210,92,0.6);
   opacity: 0;
-  animation: fadeInUp 0.8s ease-out 0.3s forwards, titleGlow 3s ease-in-out infinite 1.5s;
+  animation: fadeInUp 0.8s ease-out 0.3s forwards;
 }
 
 .scene-subtitle {
@@ -315,12 +287,10 @@
   min-height: 44px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.32);
+  background: rgba(0,0,0,0.55);
   font-family: inherit;
   cursor: pointer;
   transition: background 0.22s ease, border-color 0.22s ease;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   width: 100%;
   text-align: left;
 }
@@ -376,15 +346,13 @@
   min-height: 44px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(0,0,0,0.38);
+  background: rgba(0,0,0,0.55);
   color: rgba(240,240,240,0.88);
   font-size: 14px;
   font-family: inherit;
   font-weight: 400;
   cursor: pointer;
   transition: all 0.25s ease;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   line-height: 1.55;
 }
 
@@ -441,12 +409,6 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes titleGlow {
-  0%, 100% { text-shadow: 0 0 6px rgba(247,210,92,0.9), 0 0 14px rgba(242,91,182,0.4); }
-  40% { text-shadow: 0 0 2px rgba(247,210,92,0.4); }
-  70% { text-shadow: 0 0 10px rgba(247,210,92,1), 0 0 22px rgba(74,176,255,0.6); }
-}
-
 .btn-quiz-start {
   border-color: rgba(247,210,92,0.55) !important;
   background: rgba(247,210,92,0.12) !important;
@@ -466,8 +428,7 @@
   .scene { padding: 12px; }
 }
 
-/* ─────────── Mobile 省電：背景影片 + 卡片 blur/smoke + cardFloat 全關 ─────────── */
-/* 兇手：<video> 全螢幕 blur(8px) + ::before/::after blur(45-55px) + 三個 infinite smoke + cardFloat 7s + titleGlow */
+/* ─────────── Mobile 省電：背景影片關掉、smoke 的 blur 也省 ─────────── */
 @media (max-width: 767px) {
   .quiz-bg-video {
     display: none;
@@ -476,42 +437,22 @@
     background: #1a1818;
   }
 
-  /* 卡片 float 動畫關閉 */
-  .quiz-card {
-    animation: none !important;
-  }
-
-  /* 卡片 smoke 偽元素：blur 拿掉、infinite 動畫關閉 */
   .quiz-card-bg::before,
   .quiz-card-bg::after,
   .quiz-card-smoke::before {
-    animation: none !important;
     filter: none !important;
-  }
-
-  /* 標題 glow 關閉，保留靜態 text-shadow */
-  .scene-title {
-    animation: fadeInUp 0.8s ease-out 0.3s forwards !important;
-    text-shadow: 0 0 6px rgba(247, 210, 92, 0.6);
-  }
-
-  /* option 上的 backdrop-filter 也吃 GPU，換成純底色（保持視覺區隔） */
-  .quiz-option,
-  .scene-option {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: rgba(0, 0, 0, 0.55);
   }
 }
 
-/* 尊重「減少動態」偏好：停掉所有 infinite 動畫，slide-in 改為瞬間顯示 */
+/* 尊重「減少動態」偏好：一次性動畫也關，瞬間顯示 */
 @media (prefers-reduced-motion: reduce) {
-  .quiz-card,
-  .quiz-card-bg::before,
-  .quiz-card-bg::after,
-  .quiz-card-smoke::before,
-  .scene-title {
+  .scene-logo,
+  .scene-title,
+  .scene-subtitle,
+  .scene-preview {
     animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
   .scene-active .scene-question,
   .scene-active .scene-options .quiz-option {

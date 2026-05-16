@@ -385,33 +385,6 @@
   border-radius: 4px;
 }
 
-.primary-watch {
-  align-self: flex-start;
-  margin-top: 8px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(247, 210, 92, 0.35);
-  background: rgba(247, 210, 92, 0.05);
-  color: #f7d25c;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-.primary-watch:hover {
-  background: rgba(247, 210, 92, 0.12);
-  border-color: rgba(247, 210, 92, 0.6);
-  color: #ffe79a;
-}
-.primary-watch:focus-visible {
-  outline: 2px solid rgba(247, 210, 92, 0.7);
-  outline-offset: 3px;
-}
-.primary-watch:active { transform: translateY(1px); }
-
 .primary-providers {
   margin-top: 8px;
   display: flex;
@@ -686,12 +659,6 @@ a.provider-tile:active { transform: translateY(1px); }
   .primary-title { font-size: 22px; }
   .secondary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .primary-info { gap: 12px; }
-  .primary-watch {
-    align-self: stretch;
-    text-align: center;
-    padding: 12px 18px;
-    font-size: 14px;
-  }
   .providers-group {
     flex-direction: column;
     align-items: flex-start;

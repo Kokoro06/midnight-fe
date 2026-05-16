@@ -2,12 +2,6 @@ const TMDB_BASE = 'https://api.themoviedb.org/3'
 const TMDB_KEY = import.meta.env.VITE_TMDB_API_KEY as string | undefined
 const TMDB_IMG = 'https://image.tmdb.org/t/p/w92'
 
-// TEMP DEBUG — remove after diagnosis
-if (typeof window !== 'undefined') {
-  // eslint-disable-next-line no-console
-  console.log('[tmdb-debug] VITE_TMDB_API_KEY:', TMDB_KEY ? `set (${TMDB_KEY.length} chars, starts ${TMDB_KEY.slice(0, 4)})` : 'MISSING / undefined')
-}
-
 export interface Provider {
   provider_id: number
   provider_name: string

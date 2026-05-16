@@ -18,18 +18,22 @@
 
 /* ── Progress bar ── */
 .quiz-progress-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 3px;
+  position: absolute;
+  z-index: 4;
+  width: 100%;
+  height: 6px;
+  top:0;
+  left: 0;  
   background: rgba(255,255,255,0.10);
-  z-index: 201;
+  border-radius: 2px;
+  overflow: hidden;
 }
 .quiz-progress-bar__fill {
   height: 100%;
   background: #f7d25c;
   box-shadow: 0 0 8px rgba(247,210,92,0.7);
   transition: width 0.55s cubic-bezier(0.4,0,0.2,1);
-  border-radius: 0 2px 2px 0;
+  border-radius: 2px;
 }
 
 /* ── Scenes ── */
@@ -271,17 +275,12 @@
   color: #ede8ff;
   line-height: 1.65;
   text-align: left;
+  opacity: 0;
+  transform: translateY(24px);
 }
 
-.scene-question.typing-cursor::after {
-  content: '|';
-  color: #f7d25c;
-  animation: cursorBlink 0.75s step-end infinite;
-  margin-left: 1px;
-}
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+.scene-active .scene-question {
+  animation: quizSlideUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s forwards;
 }
 
 /* ── Options ── */
@@ -289,15 +288,21 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
-  pointer-events: none;
 }
-.scene-options.options-visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+
+.scene-options .quiz-option {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.scene-active .scene-options .quiz-option {
+  animation: quizSlideUp 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: calc(0.35s + var(--option-index, 0) * 0.18s);
+}
+
+@keyframes quizSlideUp {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .quiz-option {
@@ -499,14 +504,19 @@
   }
 }
 
-/* 尊重「減少動態」偏好：停掉所有 infinite 動畫 */
+/* 尊重「減少動態」偏好：停掉所有 infinite 動畫，slide-in 改為瞬間顯示 */
 @media (prefers-reduced-motion: reduce) {
   .quiz-card,
   .quiz-card-bg::before,
   .quiz-card-bg::after,
   .quiz-card-smoke::before,
-  .scene-title,
-  .scene-question.typing-cursor::after {
+  .scene-title {
     animation: none !important;
+  }
+  .scene-active .scene-question,
+  .scene-active .scene-options .quiz-option {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

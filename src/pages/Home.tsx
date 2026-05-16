@@ -460,7 +460,7 @@ export default function Home() {
     navigate(`/result?tags=${directusTags.map(encodeURIComponent).join(",")}${moodParam}`);
   };
 
-  const MARQUEE_TEXT = "感恩的心！5月15日歡迎投觀眾票選幫我衝一下人氣..＞＿＜..!!✦✦在午夜裡✶讓電影成為心的放映～✶金馬經典影展要開展啦～～你今天過得還好嗎？";
+  const MARQUEE_TEXT = "感恩的心！5月16日歡迎投觀眾票選幫我衝一下人氣..＞＿＜..!!✦✦在午夜裡✶讓電影成為心的放映～✶金馬經典影展要開展啦～～你今天過得還好嗎？";
 
   return (
     <>

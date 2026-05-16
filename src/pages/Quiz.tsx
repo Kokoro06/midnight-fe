@@ -13,44 +13,6 @@ interface QuizCardProps {
   children: React.ReactNode;
 }
 
-interface TypeHandle {
-  cancel: () => void;
-}
-
-const TYPE_CHARS_PER_SECOND = 10;
-
-function typeText(text: string, setter: React.Dispatch<React.SetStateAction<string>>, onComplete?: () => void, prevHandle?: TypeHandle): TypeHandle {
-  prevHandle?.cancel();
-  setter("");
-  let cancelled = false;
-  let rafId = 0;
-  let lastIdx = 0;
-  const start = performance.now();
-
-  const tick = (now: number) => {
-    if (cancelled) return;
-    const elapsed = now - start;
-    const targetIdx = Math.min(text.length, Math.floor((elapsed / 1000) * TYPE_CHARS_PER_SECOND));
-    if (targetIdx > lastIdx) {
-      setter(text.slice(0, targetIdx));
-      lastIdx = targetIdx;
-    }
-    if (targetIdx >= text.length) {
-      onComplete?.();
-      return;
-    }
-    rafId = requestAnimationFrame(tick);
-  };
-  rafId = requestAnimationFrame(tick);
-
-  return {
-    cancel: () => {
-      cancelled = true;
-      cancelAnimationFrame(rafId);
-    },
-  };
-}
-
 function QuizCard({ children }: QuizCardProps) {
   return (
     <div className="quiz-card">
@@ -67,13 +29,7 @@ export default function Quiz() {
   const [step, setStep] = useState<number>(0);
   const [leaving, setLeaving] = useState<boolean>(false);
   const [answers, setAnswers] = useState<OptionBinary[]>([]);
-  const [titleText, setTitleText] = useState<string>("");
-  const [questionText, setQuestionText] = useState<string>("");
   const [chosenOption, setChosenOption] = useState<OptionBinary | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
-  const [optionsVisible, setOptionsVisible] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingHandleRef = useRef<TypeHandle | undefined>(undefined);
   const quizStartedAtRef = useRef<number | null>(null);
   const questionShownAtRef = useRef<number | null>(null);
   const startedRef = useRef(false);
@@ -101,30 +57,11 @@ export default function Quiz() {
 
   useEffect(() => {
     document.title = "心情測驗 | Midnight Moodvie";
-    timerRef.current = setTimeout(() => {
-      typingHandleRef.current = typeText("點根線香，放鬆一下", setTitleText, undefined, typingHandleRef.current);
-    }, 100);
-    return () => {
-      if (timerRef.current !== null) clearTimeout(timerRef.current);
-      typingHandleRef.current?.cancel();
-    };
   }, []);
 
   useEffect(() => {
     if (step >= 1 && step <= TOTAL) {
-      const q = QUESTIONS[step - 1];
-      setIsTyping(true);
-      setOptionsVisible(false);
-      typingHandleRef.current = typeText(
-        q.text,
-        setQuestionText,
-        () => {
-          setIsTyping(false);
-          setOptionsVisible(true);
-          questionShownAtRef.current = performance.now();
-        },
-        typingHandleRef.current,
-      );
+      questionShownAtRef.current = performance.now();
     }
   }, [step]);
 
@@ -178,19 +115,13 @@ export default function Quiz() {
     <div className="quiz-page">
       <video className="quiz-bg-video" src="ir.mp4" autoPlay muted loop playsInline />
 
-      {step >= 1 && (
-        <div className="quiz-progress-bar" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={TOTAL} aria-label="測驗進度">
-          <div className="quiz-progress-bar__fill" style={{ width: `${(step / TOTAL) * 100}%` }} />
-        </div>
-      )}
-
       <section className={sceneClass(0)}>
         <QuizCard>
           <div style={{ paddingTop: "12px" }}>
             <div className="scene-logo">
               <img src="img/mm-logo-w.svg" alt="Midnight Moodvie" />
             </div>
-            <p className="scene-subtitle">{titleText}</p>
+            <p className="scene-subtitle">點根線香，放鬆一下</p>
             <h1 className="scene-title">你是哪款電影地縛靈？</h1>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <motion.button
@@ -226,6 +157,16 @@ export default function Quiz() {
       {QUESTIONS.map((q) => (
         <section key={q.step} className={sceneClass(q.step)}>
           <QuizCard>
+            <div
+              className="quiz-progress-bar"
+              role="progressbar"
+              aria-valuenow={q.step}
+              aria-valuemin={1}
+              aria-valuemax={TOTAL}
+              aria-label="測驗進度"
+            >
+              <div className="quiz-progress-bar__fill" style={{ width: `${(q.step / TOTAL) * 100}%` }} />
+            </div>
             <div className="quiz-step-header">
               <span className="quiz-step-num">
                 Q{q.step}
@@ -249,12 +190,13 @@ export default function Quiz() {
               </Link>
             </div>
             <div className="quiz-divider" />
-            <h2 className={`scene-question${isTyping && step === q.step ? " typing-cursor" : ""}`}>{step === q.step ? questionText : ""}</h2>
-            <div className={`scene-options${optionsVisible && step === q.step ? " options-visible" : ""}`}>
-              {q.options.map((opt) => (
+            <h2 className="scene-question">{q.text}</h2>
+            <div className="scene-options">
+              {q.options.map((opt, idx) => (
                 <motion.button
                   key={opt.type}
                   className={`quiz-option${chosenOption === opt.type ? " chosen" : ""}${chosenOption !== null && chosenOption !== opt.type ? " option-disabled" : ""}`}
+                  style={{ ["--option-index" as string]: idx } as React.CSSProperties}
                   onClick={() => chooseOption(opt.type)}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}

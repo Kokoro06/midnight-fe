@@ -286,7 +286,7 @@ export default function QuizResult() {
           <section className="qr-card" ref={cardRef}>
             <div className="qr-card-bg" />
             <div className="qr-card-smoke" />
-            <GrainCanvas animate={false} />
+            <GrainCanvas />
             <div className="qr-card-inner">
               {/* Header */}
               <div className="qr-header">

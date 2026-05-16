@@ -18,7 +18,7 @@ function QuizCard({ children }: QuizCardProps) {
     <div className="quiz-card">
       <div className="quiz-card-bg" />
       <div className="quiz-card-smoke" />
-      <GrainCanvas animate={false} />
+      <GrainCanvas />
       <div className="quiz-card-inner">{children}</div>
     </div>
   );
